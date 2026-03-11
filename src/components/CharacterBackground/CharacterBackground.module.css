@@ -1,0 +1,108 @@
+/* Fixed, behind everything — does not intercept clicks */
+.wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Character image — anchored bottom-right */
+.img {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: 92vh;
+  width: auto;
+  max-width: 55vw;
+  object-fit: contain;
+  object-position: bottom center;
+  transform-origin: bottom center;
+
+  /*
+    Single radial mask anchored at the bottom-right corner.
+    The image fades out in all directions from the anchor point —
+    no hard edge anywhere, including the left side.
+  */
+  -webkit-mask-image: radial-gradient(
+    ellipse 90% 110% at 100% 100%,
+    black 0%,
+    black 18%,
+    rgba(0,0,0,0.85) 32%,
+    rgba(0,0,0,0.55) 50%,
+    rgba(0,0,0,0.2)  68%,
+    transparent      82%
+  );
+  mask-image: radial-gradient(
+    ellipse 90% 110% at 100% 100%,
+    black 0%,
+    black 18%,
+    rgba(0,0,0,0.85) 32%,
+    rgba(0,0,0,0.55) 50%,
+    rgba(0,0,0,0.2)  68%,
+    transparent      82%
+  );
+
+  filter: saturate(0.72) brightness(0.62);
+  will-change: transform, filter;
+}
+
+/* Colour beam — screen-blend tint matching current style */
+.beam {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 55vw;
+  height: 100vh;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+/*
+  Solid left-half overlay that completely hides any lingering image edge.
+  It feathers into transparency around the middle of the screen.
+*/
+.fadeLeft {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Bottom overlay */
+.fadeBottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 35vh;
+  pointer-events: none;
+}
+
+/* Vertical character name watermark */
+.name {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.75rem;
+  font-family: var(--font-title);
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin: 0;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+@media (max-width: 768px) {
+  .img {
+    height: 68vh;
+    max-width: 78vw;
+  }
+  .beam { width: 78vw; }
+}
+
+@media (max-width: 480px) {
+  .img {
+    height: 52vh;
+    filter: saturate(0.6) brightness(0.5);
+  }
+}
