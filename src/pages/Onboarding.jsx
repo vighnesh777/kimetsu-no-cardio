@@ -10,6 +10,95 @@ import DSIcon from '../components/DSIcon/DSIcon';
 import { getStyle } from '../themes/breathingStyles';
 import styles from './Onboarding.module.css';
 
+// ── Demon Slayer-style title logo (inline SVG — no external dependency) ──────
+function DSLogoSVG() {
+  const { theme } = useTheme();
+  const primary  = theme?.colors.primary  || '#C0392B';
+  const accent   = theme?.colors.accent   || '#F5CBA7';
+  const glow     = theme?.colors.glow     || 'rgba(192,57,43,0.7)';
+
+  return (
+    <svg
+      viewBox="0 0 360 160"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ width: 'min(360px, 90vw)', height: 'auto', filter: `drop-shadow(0 0 18px ${glow})` }}
+      aria-label="Demon Slayer: Kimetsu no Yaiba"
+    >
+      <defs>
+        <linearGradient id="logoGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%"   stopColor={accent} />
+          <stop offset="45%"  stopColor={primary} />
+          <stop offset="100%" stopColor={primary} stopOpacity="0.7" />
+        </linearGradient>
+        {/* Subtle horizontal lines texture — like the anime title card */}
+        <pattern id="lines" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="2" x2="4" y2="2" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5"/>
+        </pattern>
+      </defs>
+
+      {/* Background rect with line texture */}
+      <rect x="0" y="0" width="360" height="160" rx="4" fill="rgba(0,0,0,0.35)" />
+      <rect x="0" y="0" width="360" height="160" rx="4" fill="url(#lines)" />
+
+      {/* Top decorative border */}
+      <rect x="8" y="8" width="344" height="2" fill={primary} opacity="0.7" rx="1" />
+      <rect x="8" y="150" width="344" height="2" fill={primary} opacity="0.7" rx="1" />
+      <rect x="8" y="8" width="2" height="144" fill={primary} opacity="0.5" rx="1" />
+      <rect x="350" y="8" width="2" height="144" fill={primary} opacity="0.5" rx="1" />
+
+      {/* Corner ornaments */}
+      {[[14,14],[346,14],[14,146],[346,146]].map(([cx,cy],i) => (
+        <circle key={i} cx={cx} cy={cy} r="3" fill={primary} opacity="0.8" />
+      ))}
+
+      {/* Main kanji — 鬼滅の刃 */}
+      <text
+        x="180" y="90"
+        textAnchor="middle"
+        fontFamily="'Noto Serif JP', 'Hiragino Mincho Pro', serif"
+        fontSize="68"
+        fontWeight="900"
+        fill="url(#logoGrad)"
+        letterSpacing="6"
+        style={{ paintOrder: 'stroke' }}
+        stroke="rgba(0,0,0,0.5)"
+        strokeWidth="1.5"
+      >
+        鬼滅の刃
+      </text>
+
+      {/* English subtitle */}
+      <text
+        x="180" y="118"
+        textAnchor="middle"
+        fontFamily="'Permanent Marker', cursive, sans-serif"
+        fontSize="13"
+        fontWeight="700"
+        fill={accent}
+        letterSpacing="5"
+        opacity="0.85"
+      >
+        DEMON SLAYER
+      </text>
+
+      {/* Thin divider */}
+      <line x1="80" y1="128" x2="280" y2="128" stroke={primary} strokeWidth="0.8" opacity="0.5" />
+
+      {/* Tagline */}
+      <text
+        x="180" y="143"
+        textAnchor="middle"
+        fontFamily="'Inter', sans-serif"
+        fontSize="9"
+        fill="rgba(255,255,255,0.4)"
+        letterSpacing="3"
+      >
+        KIMETSU NO YAIBA
+      </text>
+    </svg>
+  );
+}
+
 // ── Step 1: Welcome ───────────────────────────────────────────
 function WelcomeStep({ onNext }) {
   return (
@@ -22,11 +111,12 @@ function WelcomeStep({ onNext }) {
       transition={{ duration: 0.45 }}
     >
       <motion.div
-        className={styles.logoGlyph}
-        animate={{ rotate: 360 }}
-        transition={{ duration: 22, repeat: Infinity, ease: 'linear' }}
+        className={styles.logoWrap}
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.1 }}
       >
-        <DSIcon name="katana" size={76} color="var(--color-primary, #FF4500)" />
+        <DSLogoSVG />
       </motion.div>
 
       <h1 className={styles.title}>

@@ -43,12 +43,12 @@
   width: 100%;
 }
 
-.logoGlyph {
-  filter: drop-shadow(0 0 30px var(--color-glow, rgba(255,69,0,0.8)));
+.logoWrap {
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
 
 .title {
   display: flex;
