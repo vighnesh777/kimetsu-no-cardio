@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { useNavigate } from 'react-router-dom';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { fetchAllFitnessData } from '../services/googleFit';
@@ -107,10 +108,10 @@ export default function Dashboard() {
         </div>
 
         {!accessToken && (
-          <a href="/" className={styles.connectBtn}>
+          <button onClick={() => navigate('/onboarding')} className={styles.connectBtn}>
             <DSIcon name="google" size={14} />
             Connect Google Fit
-          </a>
+          </button>
         )}
       </motion.div>
 
@@ -140,11 +141,12 @@ export default function Dashboard() {
                 contentStyle={{ background: 'rgba(0,0,0,0.9)', border: `1px solid ${primary}`, borderRadius: 8, color: primary, fontSize: 12, fontFamily: 'var(--font-mono)' }}
                 cursor={{ fill: 'rgba(255,255,255,0.03)' }}
               />
-              <Bar dataKey="steps" radius={[4, 4, 0, 0]}>
-                {(data?.weeklySteps || []).map((entry, i) => (
-                  <Cell key={i} fill={primary} opacity={i === (data?.weeklySteps?.length - 1) ? 1 : 0.5} />
-                ))}
-              </Bar>
+              <Bar
+                dataKey="steps"
+                radius={[4, 4, 0, 0]}
+                fill={primary}
+                opacity={0.7}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>

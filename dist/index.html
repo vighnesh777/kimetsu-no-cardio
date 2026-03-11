@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/icons/icon-192.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#FF4500" />
+    <meta name="description" content="Kimetsu no Cardio — Train like a Demon Slayer. Sync your fitness stats with your breathing style." />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Kimetsu no Cardio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Permanent+Marker&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <script type="module" crossorigin src="/assets/index-BIP9EeJZ.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-PCIT8gjt.css">
+  <link rel="manifest" href="/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/registerSW.js"></script></head>
+  <body>
+    <div id="root"></div>
+    <!-- GitHub Pages SPA routing: decode the path redirect from 404.html -->
+    <script>
+      (function() {
+        var redirect = sessionStorage.redirect;
+        delete sessionStorage.redirect;
+        if (redirect && redirect !== location.href) {
+          history.replaceState(null, null, redirect);
+        }
+        // Also handle ?p= query param from 404.html
+        var search = location.search;
+        if (search && search.indexOf('?p=') === 0) {
+          var decoded = '/' + search.slice(3).replace(/~and~/g, '&');
+          history.replaceState(null, null, decoded + location.hash);
+        }
+      })();
+    </script>
+  </body>
+</html>

@@ -29,11 +29,12 @@ function AppRoutes() {
       <ParticleCanvas />
       <Navigation />
       <Routes>
-        <Route path="/"          element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/workouts"  element={<Workouts />} />
-        <Route path="/stats"     element={<Stats />} />
-        <Route path="*"          element={<Navigate to="/dashboard" replace />} />
+        <Route path="/"            element={<Navigate to="/dashboard" replace />} />
+        <Route path="/dashboard"   element={<Dashboard />} />
+        <Route path="/workouts"    element={<Workouts />} />
+        <Route path="/stats"       element={<Stats />} />
+        <Route path="/onboarding"  element={<Onboarding />} />
+        <Route path="*"            element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </>
   );

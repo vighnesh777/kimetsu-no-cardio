@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { auth, onAuthStateChanged, firebaseSignOut, IS_CONFIGURED } from '../services/firebase';
+import { auth, onAuthStateChanged, firebaseSignOut, resolveRedirectResult } from '../services/firebase';
 
 const AuthContext = createContext(null);
 
@@ -9,16 +9,19 @@ export function AuthProvider({ children }) {
   const [loading, setLoading]         = useState(true);
 
   useEffect(() => {
-    // Restore Google access token from this browser session
+    // Restore Google access token saved in sessionStorage
     const savedToken = sessionStorage.getItem('ds_gtoken');
     if (savedToken) setAccessToken(savedToken);
 
-    if (!IS_CONFIGURED || !auth) {
-      // Firebase not configured yet — app still works in demo mode
-      setLoading(false);
-      return;
-    }
+    // Handle redirect sign-in result (when popup was blocked)
+    resolveRedirectResult().then(result => {
+      if (result) {
+        setUser(result.user);
+        saveToken(result.accessToken);
+      }
+    });
 
+    // Stay in sync with Firebase auth state
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
       setLoading(false);
@@ -39,7 +42,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, accessToken, loading, saveToken, logout, isConfigured: IS_CONFIGURED }}>
+    <AuthContext.Provider value={{ user, accessToken, loading, saveToken, logout }}>
       {children}
     </AuthContext.Provider>
   );
