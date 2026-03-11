@@ -18,15 +18,16 @@ import {
 //  Firebase config is NOT secret — safe to commit to code.
 // ─────────────────────────────────────────────────────────────────
 const firebaseConfig = {
-  apiKey:            "YOUR_API_KEY",
-  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId:         "YOUR_PROJECT_ID",
-  storageBucket:     "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId:             "YOUR_APP_ID",
+  apiKey: "AIzaSyDjDLleV-enzXVCiJFkxVNLL-1IWCG-Bw0",
+  authDomain: "kimetsu-no-cardio.firebaseapp.com",
+  projectId: "kimetsu-no-cardio",
+  storageBucket: "kimetsu-no-cardio.firebasestorage.app",
+  messagingSenderId: "821617002493",
+  appId: "1:821617002493:web:3f810b48a0b0b5cd63bb94",
+  measurementId: "G-VP42VVMV5Y"
 };
 
-const IS_CONFIGURED = firebaseConfig.apiKey !== "YOUR_API_KEY";
+const IS_CONFIGURED = firebaseConfig.apiKey !== "AIzaSyDjDLleV-enzXVCiJFkxVNLL-1IWCG-Bw0";
 
 // Only initialise Firebase once and only when config is filled in
 let auth = null;
