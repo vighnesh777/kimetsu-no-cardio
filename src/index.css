@@ -1,0 +1,82 @@
+/* ── Font role definitions ── */
+:root {
+  /* Fonts */
+  --font-title: 'Permanent Marker', cursive;       /* App title, rank labels, celebrations */
+  --font-mono: 'Space Mono', monospace;            /* Stats, numbers, data */
+  --font-body: 'Inter', system-ui, sans-serif;     /* Body text, menus, UI */
+
+  /* Theme CSS variables (overridden dynamically by ThemeContext) */
+  --color-primary: #FF4500;
+  --color-secondary: #FF8C00;
+  --color-accent: #FFD700;
+  --color-bg: #0D0500;
+  --color-bg-secondary: #1A0800;
+  --color-bg-card: #1F0900;
+  --color-text: #FFE0B2;
+  --color-text-muted: #FF8C00;
+  --color-glow: rgba(255, 69, 0, 0.6);
+  --gradient: linear-gradient(135deg, #FF4500 0%, #FF8C00 50%, #FFD700 100%);
+  --card-gradient: linear-gradient(135deg, rgba(255,69,0,0.15) 0%, rgba(255,140,0,0.08) 100%);
+  --border-glow: 0 0 20px rgba(255, 69, 0, 0.5), 0 0 40px rgba(255, 140, 0, 0.3);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.4s ease;
+}
+
+#root { min-height: 100vh; position: relative; }
+
+/*
+  Z-index stack:
+    0   — CharacterBackground (character art, speed lines)
+    0   — ParticleCanvas      (floating particles)
+    1   — Page content
+  100   — Navigation bar
+  200   — Modals / dropdowns
+*/
+#root > *:not(canvas):not([aria-hidden="true"]) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 3px;
+  opacity: 0.5;
+}
+
+/* Selection */
+::selection { background: var(--color-primary); color: #000; }
+
+/* Focus ring */
+:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+/* Global resets */
+h1, h2, h3, h4, h5, h6 { margin: 0; }
+p { margin: 0; }
+button { font-family: var(--font-body); }
+input, textarea, select { font-family: var(--font-body); }
+a { color: inherit; }
+img { max-width: 100%; }
+
+/* Font utility classes */
+.font-title  { font-family: var(--font-title); }
+.font-mono   { font-family: var(--font-mono); }
+.font-body   { font-family: var(--font-body); }
