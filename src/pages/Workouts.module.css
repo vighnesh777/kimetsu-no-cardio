@@ -1,11 +1,353 @@
 .page {
   padding: 5.5rem 2rem 2rem;
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+}
+
+/* Muscle skeleton side-by-side */
+.skeletonRow {
+  display: flex;
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .skeletonRow {
+    flex-direction: column;
+  }
+}
+
+/* Exercise picker */
+.picker {
+  position: relative;
+  margin-bottom: 0.5rem;
+}
+
+.searchWrap {
+  position: relative;
+}
+
+.searchInput {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  padding: 0.6rem 2rem 0.6rem 0.75rem;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.searchInput:focus {
+  border-color: var(--color-primary);
+}
+
+.selectedEx {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--card-gradient);
+  border: 1px solid var(--color-primary);
+  border-radius: 8px;
+  padding: 0.55rem 0.75rem;
+  box-shadow: var(--border-glow);
+}
+
+.selectedName {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  flex: 1;
+}
+
+.selectedCat {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.07);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+}
+
+.clearBtn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.35);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  transition: color 0.2s;
+}
+
+.clearBtn:hover { color: var(--color-primary); }
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: rgba(5,5,10,0.98);
+  border: 1px solid var(--color-primary);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--border-glow), 0 20px 40px rgba(0,0,0,0.6);
+  transform-origin: top;
+}
+
+.catPills {
+  display: flex;
+  gap: 0.3rem;
+  padding: 0.6rem 0.75rem;
+  flex-wrap: wrap;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.catPill {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.5);
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.3px;
+}
+
+.catPillActive {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #000;
+}
+
+.dropList {
+  max-height: 220px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.dropItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  cursor: pointer;
+  text-align: left;
+  gap: 0.5rem;
+  transition: background 0.15s;
+}
+
+.dropItem:hover { background: rgba(255,255,255,0.06); }
+
+.dropName {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.dropMuscles {
+  display: block;
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.35);
+  margin-top: 1px;
+}
+
+.dropCat {
+  font-size: 0.65rem;
+  color: var(--color-primary);
+  background: rgba(255,255,255,0.06);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.dropEmpty {
+  padding: 1rem;
+  text-align: center;
+  color: rgba(255,255,255,0.3);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+/* Add custom exercise button — pinned to bottom of dropdown */
+.addCustomBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  background: rgba(255,255,255,0.03);
+  border: none;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  color: var(--color-primary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+  letter-spacing: 0.3px;
+}
+
+.addCustomBtn:hover {
+  background: rgba(255,255,255,0.07);
+}
+
+/* Custom exercise builder panel */
+.customBuilder {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: rgba(5,5,10,0.98);
+  border: 1px solid var(--color-primary);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: var(--border-glow), 0 20px 40px rgba(0,0,0,0.6);
+}
+
+.customTitle {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--color-primary);
+  margin: 0 0 0.6rem;
+}
+
+.customNameInput {
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  padding: 0.55rem 0.75rem;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+  box-sizing: border-box;
+  margin-bottom: 0.75rem;
+}
+
+.customNameInput:focus {
+  border-color: var(--color-primary);
+}
+
+.customMuscleLabel {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 0.5rem;
+}
+
+.muscleGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.9rem;
+}
+
+.muscleToggle {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.5);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.22rem 0.6rem;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.muscleToggle:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.muscleToggleOn {
+  font-weight: 700;
+}
+
+.customActions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.customCancel {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.4);
+  font-size: 0.8rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.customCancel:hover {
+  border-color: rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.6);
+}
+
+.customConfirm {
+  border: none;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.4rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+
+.customConfirm:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Muscle chips below selected exercise */
+.muscleChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.muscleChipsLabel {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.chip {
+  font-size: 0.68rem;
+  font-weight: 600;
+  border: 1px solid;
+  padding: 0.1rem 0.5rem;
+  border-radius: 100px;
+  text-transform: capitalize;
 }
 
 .header {

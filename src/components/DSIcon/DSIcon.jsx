@@ -50,15 +50,33 @@ const icons = {
   ),
 
   stats: (
-    // Scroll / mission report
+    // Rising bar chart with flame tip — performance / mastery
     <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="4" y="3" width="16" height="18" rx="2" stroke="currentColor" strokeWidth="1.6"/>
-      <line x1="8" y1="8" x2="16" y2="8" stroke="currentColor" strokeWidth="1.4"/>
-      <line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" strokeWidth="1.4"/>
-      <line x1="8" y1="16" x2="12" y2="16" stroke="currentColor" strokeWidth="1.4"/>
-      {/* Scroll top curl */}
-      <path d="M4 5 Q4 2 7 3" stroke="currentColor" strokeWidth="1.4" fill="none"/>
-      <path d="M20 5 Q20 2 17 3" stroke="currentColor" strokeWidth="1.4" fill="none"/>
+      {/* Bars */}
+      <rect x="3" y="14" width="4" height="7" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+      <rect x="10" y="9" width="4" height="12" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+      <rect x="17" y="5" width="4" height="16" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+      {/* Flame tip on tallest bar */}
+      <path d="M19 5 Q19 2 21 1 Q20 3.5 21 5" stroke="currentColor" strokeWidth="1.2" fill="none" opacity="0.7"/>
+    </svg>
+  ),
+
+  nichirin: (
+    // Nichirin blade — the iconic Demon Slayer sword with curved blade, tsuba, and wrapped handle
+    <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      {/* Blade — slightly curved single-edge */}
+      <path d="M20 2 Q22 4 20 6 L7 17" stroke="currentColor" strokeWidth="1.8"/>
+      {/* Blade edge detail */}
+      <path d="M20 2 L18 4" stroke="currentColor" strokeWidth="1" opacity="0.5"/>
+      {/* Tsuba (circular guard) */}
+      <circle cx="8.5" cy="15.5" r="2.2" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+      {/* Handle wrapping lines */}
+      <line x1="5.5" y1="18.5" x2="4.5" y2="19.5" stroke="currentColor" strokeWidth="2.2"/>
+      <line x1="4.5" y1="19.5" x2="3.5" y2="20.5" stroke="currentColor" strokeWidth="2.2"/>
+      <line x1="3.5" y1="20.5" x2="2.5" y2="21.5" stroke="currentColor" strokeWidth="2"/>
+      {/* Handle wrap cross marks */}
+      <line x1="4.2" y1="18.8" x2="5.8" y2="20.2" stroke="currentColor" strokeWidth="0.8" opacity="0.5"/>
+      <line x1="3.2" y1="19.8" x2="4.8" y2="21.2" stroke="currentColor" strokeWidth="0.8" opacity="0.5"/>
     </svg>
   ),
 

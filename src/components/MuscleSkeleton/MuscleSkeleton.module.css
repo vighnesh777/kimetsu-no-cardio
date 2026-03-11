@@ -1,0 +1,176 @@
+.wrap {
+  background: var(--card-gradient);
+  border: 1px solid var(--color-primary);
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: var(--border-glow);
+}
+
+.topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.viewToggle {
+  display: flex;
+  gap: 0.25rem;
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.viewBtn {
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.4);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+}
+
+.viewActive {
+  background: var(--color-primary);
+  color: #000;
+}
+
+.body {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.modelWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.tooltip {
+  position: absolute;
+  top: -48px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.9);
+  border: 1px solid;
+  border-radius: 8px;
+  padding: 0.35rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.tooltipLabel {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.7);
+  font-weight: 600;
+}
+
+.tooltipCount {
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: var(--font-mono, monospace);
+}
+
+/* Legend */
+.legend {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.legendTitle {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 0.25rem;
+}
+
+.legendEmpty {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.25);
+  margin: 0;
+  font-style: italic;
+}
+
+.legendRow {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.legendBarBg {
+  width: 60px;
+  height: 6px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 3px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.legendBarFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+  opacity: 0.8;
+}
+
+.legendMuscle {
+  font-size: 0.73rem;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.legendCount {
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: var(--font-mono, monospace);
+  flex-shrink: 0;
+}
+
+/* Intensity key */
+.intensityKey {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+
+.keyLabel {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.3);
+}
+
+.keyDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}

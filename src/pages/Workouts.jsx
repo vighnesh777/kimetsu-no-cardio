@@ -1,100 +1,240 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { logWorkout, fetchWorkouts, getSheetUrl } from '../services/googleSheets';
+import { EXERCISES, CATEGORIES, MUSCLE_GROUPS, getMusclesFromWorkouts } from '../data/exercises';
+import MuscleSkeleton from '../components/MuscleSkeleton/MuscleSkeleton';
 import DSIcon from '../components/DSIcon/DSIcon';
 import styles from './Workouts.module.css';
 
-const EXERCISE_PRESETS = [
-  { name: 'Running',    icon: 'distance',     type: 'cardio'    },
-  { name: 'Push-ups',   icon: 'weight',       type: 'strength'  },
-  { name: 'Pull-ups',   icon: 'weight',       type: 'strength'  },
-  { name: 'Squats',     icon: 'activeMinutes',type: 'strength'  },
-  { name: 'Plank',      icon: 'target',       type: 'core'      },
-  { name: 'Cycling',    icon: 'distance',     type: 'cardio'    },
-  { name: 'Swimming',   icon: 'water',        type: 'cardio'    },
-  { name: 'HIIT',       icon: 'thunder',      type: 'cardio'    },
-  { name: 'Deadlift',   icon: 'weight',       type: 'strength'  },
-  { name: 'Meditation', icon: 'style',        type: 'recovery'  },
-];
-
-function WorkoutForm({ onSave, theme, submitting }) {
-  const [form, setForm] = useState({
-    exercise: '',
-    sets: '',
-    reps: '',
-    duration: '',
-    calories: '',
-    notes: '',
-  });
-
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+// ── Custom Exercise Builder ────────────────────────────────────
+function CustomExerciseBuilder({ initialName, onConfirm, onCancel }) {
+  const { theme } = useTheme();
   const primary = theme?.colors.primary || '#FF4500';
+  const [name, setName] = useState(initialName || '');
+  const [selectedMuscles, setSelectedMuscles] = useState([]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!form.exercise) return;
-    onSave(form);
-    setForm({ exercise: '', sets: '', reps: '', duration: '', calories: '', notes: '' });
+  const toggleMuscle = (id) =>
+    setSelectedMuscles(prev =>
+      prev.includes(id) ? prev.filter(m => m !== id) : [...prev, id]
+    );
+
+  const handleConfirm = () => {
+    if (!name.trim()) return;
+    onConfirm({ name: name.trim(), category: 'Custom', muscles: selectedMuscles, defaults: {} });
   };
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit}>
-      <div className={styles.presets}>
-        {EXERCISE_PRESETS.map(p => (
+    <motion.div
+      className={styles.customBuilder}
+      initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
+    >
+      <p className={styles.customTitle}>Custom Exercise</p>
+
+      <input
+        className={styles.customNameInput}
+        value={name}
+        onChange={e => setName(e.target.value)}
+        placeholder="Exercise name..."
+        autoFocus
+      />
+
+      <p className={styles.customMuscleLabel}>Select targeted muscles:</p>
+      <div className={styles.muscleGrid}>
+        {Object.entries(MUSCLE_GROUPS).map(([id, info]) => (
           <button
-            key={p.name}
+            key={id}
             type="button"
-            className={`${styles.preset} ${form.exercise === p.name ? styles.presetActive : ''}`}
-            onClick={() => set('exercise', p.name)}
+            className={`${styles.muscleToggle} ${selectedMuscles.includes(id) ? styles.muscleToggleOn : ''}`}
+            style={selectedMuscles.includes(id) ? { borderColor: primary, color: primary, background: `${primary}18` } : {}}
+            onClick={() => toggleMuscle(id)}
           >
-            <DSIcon name={p.icon} size={14} />
-            <span>{p.name}</span>
+            {info.label}
           </button>
         ))}
       </div>
 
-      <div className={styles.formGrid}>
-        <div className={styles.field}>
-          <label>Exercise</label>
+      <div className={styles.customActions}>
+        <button type="button" className={styles.customCancel} onClick={onCancel}>Cancel</button>
+        <button
+          type="button"
+          className={styles.customConfirm}
+          style={{ background: primary, color: '#000' }}
+          onClick={handleConfirm}
+          disabled={!name.trim()}
+        >
+          Use This Exercise
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
+// ── Searchable Exercise Picker ─────────────────────────────────
+function ExercisePicker({ selected, onSelect }) {
+  const [query, setQuery] = useState('');
+  const [category, setCategory] = useState('All');
+  const [open, setOpen] = useState(false);
+  const [showCustom, setShowCustom] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) { setOpen(false); setShowCustom(false); } };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const filtered = EXERCISES.filter(ex =>
+    (category === 'All' || ex.category === category) &&
+    ex.name.toLowerCase().includes(query.toLowerCase())
+  );
+
+  const handleSelect = (ex) => { onSelect(ex); setOpen(false); setShowCustom(false); setQuery(''); };
+  const handleClear = () => { onSelect(null); setQuery(''); setShowCustom(false); };
+
+  const handleCustomConfirm = (ex) => {
+    onSelect(ex);
+    setOpen(false);
+    setShowCustom(false);
+    setQuery('');
+  };
+
+  return (
+    <div className={styles.picker} ref={ref}>
+      <label className={styles.fieldLabel}>Exercise</label>
+      {selected ? (
+        <div className={styles.selectedEx}>
+          <span className={styles.selectedName}>{selected.name}</span>
+          <span className={styles.selectedCat}>{selected.category}</span>
+          <button type="button" className={styles.clearBtn} onClick={handleClear}>
+            <DSIcon name="close" size={12} />
+          </button>
+        </div>
+      ) : (
+        <div className={styles.searchWrap}>
           <input
-            value={form.exercise}
-            onChange={e => set('exercise', e.target.value)}
-            placeholder="Exercise name"
-            required
+            className={styles.searchInput}
+            placeholder="Search exercises..."
+            value={query}
+            onChange={e => { setQuery(e.target.value); setOpen(true); setShowCustom(false); }}
+            onFocus={() => setOpen(true)}
           />
         </div>
+      )}
+
+      <AnimatePresence>
+        {open && !selected && !showCustom && (
+          <motion.div
+            className={styles.dropdown}
+            initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.15 }}
+          >
+            <div className={styles.catPills}>
+              {CATEGORIES.map(c => (
+                <button key={c} type="button"
+                  className={`${styles.catPill} ${category === c ? styles.catPillActive : ''}`}
+                  onClick={() => setCategory(c)}>{c}</button>
+              ))}
+            </div>
+            <div className={styles.dropList}>
+              {filtered.map(ex => (
+                <button key={ex.name} type="button" className={styles.dropItem} onClick={() => handleSelect(ex)}>
+                  <div>
+                    <span className={styles.dropName}>{ex.name}</span>
+                    <span className={styles.dropMuscles}>{ex.muscles.slice(0,3).map(m => m.replace('-',' ')).join(', ')}</span>
+                  </div>
+                  <span className={styles.dropCat}>{ex.category}</span>
+                </button>
+              ))}
+            </div>
+            {/* Custom exercise entry point — always visible at bottom */}
+            <button
+              type="button"
+              className={styles.addCustomBtn}
+              onClick={() => { setOpen(false); setShowCustom(true); }}
+            >
+              <DSIcon name="nichirin" size={13} />
+              {query.trim() ? `Add "${query.trim()}" as custom` : 'Add custom exercise'}
+            </button>
+          </motion.div>
+        )}
+
+        {showCustom && !selected && (
+          <CustomExerciseBuilder
+            key="custom"
+            initialName={query.trim()}
+            onConfirm={handleCustomConfirm}
+            onCancel={() => { setShowCustom(false); setOpen(true); }}
+          />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function WorkoutForm({ onSave, theme, submitting }) {
+  const [exercise, setExercise] = useState(null);
+  const [form, setForm] = useState({ sets:'', reps:'', duration:'', calories:'', notes:'' });
+  const setF = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const primary = theme?.colors.primary || '#FF4500';
+
+  const handleExerciseSelect = (ex) => {
+    setExercise(ex);
+    if (ex?.defaults) setForm(f => ({ ...f, sets: ex.defaults.sets||'', reps: ex.defaults.reps||'', duration: ex.defaults.duration||'' }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!exercise) return;
+    onSave({ exercise: exercise.name, muscles: exercise.muscles, ...form });
+    setExercise(null);
+    setForm({ sets:'', reps:'', duration:'', calories:'', notes:'' });
+  };
+
+  return (
+    <form className={styles.form} onSubmit={handleSubmit}>
+      <ExercisePicker selected={exercise} onSelect={handleExerciseSelect} />
+
+      {exercise && (
+        <motion.div className={styles.muscleChips} initial={{ opacity:0, y:-4 }} animate={{ opacity:1, y:0 }}>
+          <span className={styles.muscleChipsLabel}>Targets:</span>
+          {exercise.muscles.map(m => (
+            <span key={m} className={styles.chip} style={{ borderColor: primary, color: primary }}>
+              {m.replace('_',' ')}
+            </span>
+          ))}
+        </motion.div>
+      )}
+
+      <div className={styles.formGrid}>
         <div className={styles.field}>
-          <label>Duration (min)</label>
-          <input type="number" value={form.duration} onChange={e => set('duration', e.target.value)} placeholder="30" min="0" />
+          <label className={styles.fieldLabel}>Sets</label>
+          <input type="number" value={form.sets} onChange={e=>setF('sets',e.target.value)} placeholder="3" min="0" />
         </div>
         <div className={styles.field}>
-          <label>Sets</label>
-          <input type="number" value={form.sets} onChange={e => set('sets', e.target.value)} placeholder="3" min="0" />
+          <label className={styles.fieldLabel}>Reps</label>
+          <input type="number" value={form.reps} onChange={e=>setF('reps',e.target.value)} placeholder="12" min="0" />
         </div>
         <div className={styles.field}>
-          <label>Reps</label>
-          <input type="number" value={form.reps} onChange={e => set('reps', e.target.value)} placeholder="12" min="0" />
+          <label className={styles.fieldLabel}>Duration (min)</label>
+          <input type="number" value={form.duration} onChange={e=>setF('duration',e.target.value)} placeholder="30" min="0" />
         </div>
         <div className={styles.field}>
-          <label>Calories</label>
-          <input type="number" value={form.calories} onChange={e => set('calories', e.target.value)} placeholder="200" min="0" />
+          <label className={styles.fieldLabel}>Calories</label>
+          <input type="number" value={form.calories} onChange={e=>setF('calories',e.target.value)} placeholder="200" min="0" />
         </div>
         <div className={`${styles.field} ${styles.fieldFull}`}>
-          <label>Notes</label>
-          <input value={form.notes} onChange={e => set('notes', e.target.value)} placeholder="How was the training?" />
+          <label className={styles.fieldLabel}>Notes</label>
+          <input value={form.notes} onChange={e=>setF('notes',e.target.value)} placeholder="How was the session?" />
         </div>
       </div>
 
-      <motion.button
-        type="submit"
-        className={styles.submitBtn}
-        disabled={submitting || !form.exercise}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-      >
-        <DSIcon name="katana" size={16} />{submitting ? ' Logging...' : ' Log Training'}
+      <motion.button type="submit" className={styles.submitBtn}
+        disabled={submitting || !exercise} whileHover={{ scale:1.02 }} whileTap={{ scale:0.98 }}>
+        <DSIcon name="nichirin" size={18} />
+        {submitting ? ' Logging...' : ' Log Training'}
       </motion.button>
     </form>
   );
@@ -102,21 +242,15 @@ function WorkoutForm({ onSave, theme, submitting }) {
 
 function WorkoutRow({ workout, primary }) {
   return (
-    <motion.div
-      className={styles.row}
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.3 }}
-    >
+    <motion.div className={styles.row} initial={{ opacity:0, x:-20 }} animate={{ opacity:1, x:0 }}>
       <div className={styles.rowDate}>{workout.date}</div>
       <div className={styles.rowExercise} style={{ color: primary }}>{workout.exercise}</div>
       <div className={styles.rowMeta}>
-        {workout.sets && workout.reps && <span>{workout.sets}×{workout.reps}</span>}
+        {workout.sets && workout.reps && <span>{workout.sets}x{workout.reps}</span>}
         {workout.duration && <span>{workout.duration}min</span>}
         {workout.calories && <span>{workout.calories}kcal</span>}
       </div>
       {workout.notes && <div className={styles.rowNotes}>{workout.notes}</div>}
-      <div className={styles.rowStyle}>{workout.breathingStyle}</div>
     </motion.div>
   );
 }
@@ -131,60 +265,34 @@ export default function Workouts() {
 
   const primary = theme?.colors.primary || '#FF4500';
   const sheetUrl = getSheetUrl();
+  const todayStr = new Date().toLocaleDateString();
+  const todayMuscles = getMusclesFromWorkouts(workouts.filter(w => w.date === todayStr));
+  const allTimeMuscles = getMusclesFromWorkouts(workouts);
 
   useEffect(() => {
     if (!accessToken) return;
     setLoadingHistory(true);
-    fetchWorkouts(accessToken)
-      .then(setWorkouts)
-      .catch(console.error)
-      .finally(() => setLoadingHistory(false));
+    fetchWorkouts(accessToken).then(setWorkouts).catch(console.error).finally(() => setLoadingHistory(false));
   }, [accessToken]);
 
-  const showToast = (msg, ok = true) => {
-    setToast({ msg, ok });
-    setTimeout(() => setToast(null), 3000);
-  };
+  const showToast = (msg, ok=true) => { setToast({ msg, ok }); setTimeout(() => setToast(null), 3000); };
 
-  const handleSave = async (form) => {
-    const entry = { ...form, breathingStyle: theme?.name || styleId || 'Unknown' };
-
-    // Optimistic local save
-    setWorkouts(prev => [{
-      ...entry,
-      date: new Date().toLocaleDateString(),
-    }, ...prev]);
-
-    if (!accessToken) {
-      showToast('Workout logged locally (connect Google to sync)');
-      return;
-    }
-
+  const handleSave = async (formData) => {
+    const entry = { ...formData, breathingStyle: theme?.name || styleId || 'Unknown' };
+    setWorkouts(prev => [{ ...entry, date: todayStr }, ...prev]);
+    if (!accessToken) { showToast('Workout logged locally (connect Google to sync)'); return; }
     setSubmitting(true);
-    try {
-      await logWorkout(accessToken, entry);
-      showToast('Training logged to Google Sheets!');
-    } catch (err) {
-      showToast('Failed to sync to Sheets', false);
-    } finally {
-      setSubmitting(false);
-    }
+    try { await logWorkout(accessToken, entry); showToast('Training logged to Google Sheets!'); }
+    catch { showToast('Failed to sync to Sheets', false); }
+    finally { setSubmitting(false); }
   };
 
   return (
     <div className={styles.page}>
-      <motion.div
-        className={styles.header}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
+      <motion.div className={styles.header} initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }}>
         <div>
-          <h1 className={styles.title}>
-            <span style={{ color: primary }}>Training</span> Log
-          </h1>
-          <p className={styles.subtitle}>
-            {theme?.name} — {theme?.japanese}
-          </p>
+          <h1 className={styles.title}><span style={{ color: primary }}>Training</span> Log</h1>
+          <p className={styles.subtitle}>{theme?.name} — {theme?.japanese}</p>
         </div>
         {sheetUrl && (
           <a href={sheetUrl} target="_blank" rel="noopener noreferrer" className={styles.sheetLink}>
@@ -193,50 +301,36 @@ export default function Workouts() {
         )}
       </motion.div>
 
-      <motion.div
-        className={styles.formCard}
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
+      <div className={styles.skeletonRow}>
+        <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.05 }} style={{ flex:1, minWidth:0 }}>
+          <MuscleSkeleton muscleCounts={todayMuscles} title="Today's Muscles" />
+        </motion.div>
+        <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.1 }} style={{ flex:1, minWidth:0 }}>
+          <MuscleSkeleton muscleCounts={allTimeMuscles} title="All-Time Activity" />
+        </motion.div>
+      </div>
+
+      <motion.div className={styles.formCard} initial={{ opacity:0, y:30 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.15 }}>
         <h2 className={styles.sectionTitle}>Log New Training</h2>
         <WorkoutForm onSave={handleSave} theme={theme} submitting={submitting} />
       </motion.div>
 
-      <motion.div
-        className={styles.historyCard}
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-      >
+      <motion.div className={styles.historyCard} initial={{ opacity:0, y:30 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.2 }}>
         <h2 className={styles.sectionTitle}>
           Training History
           {workouts.length > 0 && <span className={styles.count}>{workouts.length}</span>}
         </h2>
-
         {loadingHistory && <p className={styles.loading}>Loading history...</p>}
-
-        {!loadingHistory && workouts.length === 0 && (
-          <p className={styles.empty}>
-            No training logged yet. Begin your journey, Demon Slayer.
-          </p>
-        )}
-
+        {!loadingHistory && workouts.length === 0 && <p className={styles.empty}>No training logged yet. Begin your journey, Demon Slayer.</p>}
         <div className={styles.historyList}>
-          {workouts.map((w, i) => (
-            <WorkoutRow key={i} workout={w} primary={primary} />
-          ))}
+          {workouts.map((w, i) => <WorkoutRow key={i} workout={w} primary={primary} />)}
         </div>
       </motion.div>
 
       <AnimatePresence>
         {toast && (
-          <motion.div
-            className={`${styles.toast} ${toast.ok ? styles.toastOk : styles.toastErr}`}
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-          >
+          <motion.div className={`${styles.toast} ${toast.ok ? styles.toastOk : styles.toastErr}`}
+            initial={{ opacity:0, y:50 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:50 }}>
             {toast.msg}
           </motion.div>
         )}

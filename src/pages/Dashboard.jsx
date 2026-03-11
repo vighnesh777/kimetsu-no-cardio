@@ -39,6 +39,7 @@ function MotivationalBanner({ theme }) {
 export default function Dashboard() {
   const { theme } = useTheme();
   const { accessToken, user } = useAuth();
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(null);

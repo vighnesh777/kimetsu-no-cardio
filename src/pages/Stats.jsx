@@ -7,6 +7,9 @@ import {
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { fetchWeeklySteps } from '../services/googleFit';
+import { fetchWorkouts } from '../services/googleSheets';
+import { getMusclesFromWorkouts } from '../data/exercises';
+import MuscleSkeleton from '../components/MuscleSkeleton/MuscleSkeleton';
 import styles from './Stats.module.css';
 
 const DEMO_WEEKLY = [
@@ -46,6 +49,9 @@ export default function Stats() {
   const { theme } = useTheme();
   const { accessToken } = useAuth();
   const [weeklyData, setWeeklyData] = useState(DEMO_WEEKLY);
+  const [allTimeMuscles, setAllTimeMuscles] = useState({});
+  const todayStr = new Date().toLocaleDateString();
+  const [todayMuscles, setTodayMuscles] = useState({});
 
   const primary = theme?.colors.primary || '#FF4500';
   const secondary = theme?.colors.secondary || '#FF8C00';
@@ -54,6 +60,10 @@ export default function Stats() {
 
   useEffect(() => {
     if (!accessToken) return;
+    fetchWorkouts(accessToken).then(workouts => {
+      setAllTimeMuscles(getMusclesFromWorkouts(workouts));
+      setTodayMuscles(getMusclesFromWorkouts(workouts.filter(w => w.date === todayStr)));
+    }).catch(console.error);
     fetchWeeklySteps(accessToken).then(steps => {
       if (steps?.length) {
         setWeeklyData(steps.map((s, i) => ({
@@ -155,6 +165,16 @@ export default function Stats() {
           </AreaChart>
         </ResponsiveContainer>
       </motion.div>
+
+      {/* Muscle Activity */}
+      <div className={styles.twoCol}>
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
+          <MuscleSkeleton muscleCounts={todayMuscles} title="Today's Muscles" />
+        </motion.div>
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+          <MuscleSkeleton muscleCounts={allTimeMuscles} title="All-Time Muscle Map" />
+        </motion.div>
+      </div>
     </div>
   );
 }

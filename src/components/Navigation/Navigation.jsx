@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 import DSIcon from '../DSIcon/DSIcon';
 import { useAvatar } from '../../contexts/AvatarContext';
@@ -16,7 +15,6 @@ const NAV_ITEMS = [
 ];
 
 export default function Navigation() {
-  const { theme } = useTheme();
   const { user, logout } = useAuth();
   const { avatar } = useAvatar();
   const { imageForId, isLoading } = useHunterImages();
@@ -107,7 +105,7 @@ export default function Navigation() {
 
           {/* Not signed in */}
           {!user && (
-            <button className={styles.connectBtn} onClick={() => navigate('/')}>
+            <button className={styles.connectBtn} onClick={() => navigate('/onboarding')}>
               <DSIcon name="google" size={14} />
               <span>Connect</span>
             </button>
