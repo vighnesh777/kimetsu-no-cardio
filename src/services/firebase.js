@@ -64,7 +64,8 @@ export async function resolveRedirectResult() {
     if (!result) return null;
     const credential = GoogleAuthProvider.credentialFromResult(result);
     return { user: result.user, accessToken: credential.accessToken };
-  } catch {
+  } catch (err) {
+    console.error('[Firebase redirect result]', err.code, err.message);
     return null;
   }
 }

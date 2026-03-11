@@ -18,12 +18,18 @@ export default function GoogleAuth({ onSuccess }) {
     setBusy(true);
     setErr(null);
     try {
-      const { accessToken } = await signInWithGoogle();
-      saveToken(accessToken);
+      const result = await signInWithGoogle();
+      // null means signInWithRedirect was triggered — page is navigating away
+      if (!result) return;
+      saveToken(result.accessToken);
       onSuccess?.();
     } catch (e) {
-      if (e.code !== 'auth/popup-closed-by-user') {
-        setErr('Sign-in failed. Please try again.');
+      console.error('[Firebase Auth]', e.code, e.message);
+      if (e.code === 'auth/popup-closed-by-user') return;
+      if (e.code === 'auth/unauthorized-domain') {
+        setErr('This domain is not authorised in Firebase. Add it under Authentication → Settings → Authorized domains in the Firebase Console.');
+      } else {
+        setErr(`Sign-in failed: ${e.message || e.code}`);
       }
     } finally {
       setBusy(false);
