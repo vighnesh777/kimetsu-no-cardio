@@ -28,6 +28,8 @@ const provider = new GoogleAuthProvider();
   'https://www.googleapis.com/auth/fitness.sleep.read',
   'https://www.googleapis.com/auth/fitness.nutrition.read',
   'https://www.googleapis.com/auth/spreadsheets',
+  // Read-only file metadata — needed to find the existing sheet across devices/sessions
+  'https://www.googleapis.com/auth/drive.metadata.readonly',
 ].forEach(s => provider.addScope(s));
 provider.setCustomParameters({ prompt: 'select_account' });
 

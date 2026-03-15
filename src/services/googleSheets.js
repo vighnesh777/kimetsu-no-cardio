@@ -1,5 +1,7 @@
 // Google Sheets API service — used as a workout log backend
 const SHEETS_BASE = 'https://sheets.googleapis.com/v4/spreadsheets';
+const DRIVE_BASE  = 'https://www.googleapis.com/drive/v3';
+const SHEET_NAME  = 'Demon Slayer Fitness Tracker';
 
 const headers = (token) => ({
   Authorization: `Bearer ${token}`,
@@ -9,18 +11,39 @@ const headers = (token) => ({
 const SHEET_TITLE = 'Workouts';
 const COLUMNS = ['Date', 'Breathing Style', 'Exercise', 'Sets', 'Reps', 'Duration (min)', 'Calories', 'Notes', 'Muscles'];
 
-export async function getOrCreateSpreadsheet(token) {
-  const saved = localStorage.getItem('ds_sheet_id');
-  if (saved) return saved;
+// Search the user's Drive for an existing spreadsheet by exact name.
+// Uses drive.metadata.readonly — no file content is accessed.
+async function findSheetInDrive(token) {
+  const q = encodeURIComponent(
+    `name='${SHEET_NAME}' and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false`
+  );
+  const res = await fetch(`${DRIVE_BASE}/files?q=${q}&fields=files(id)&pageSize=1`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data.files?.[0]?.id || null;
+}
 
+export async function getOrCreateSpreadsheet(token) {
+  // 1. Check localStorage cache first (fastest path)
+  const cached = localStorage.getItem('ds_sheet_id');
+  if (cached) return cached;
+
+  // 2. Search Drive for an existing sheet (handles cleared cache / new device)
+  const existing = await findSheetInDrive(token);
+  if (existing) {
+    localStorage.setItem('ds_sheet_id', existing);
+    return existing;
+  }
+
+  // 3. Nothing found — create a fresh spreadsheet
   const res = await fetch(`${SHEETS_BASE}`, {
     method: 'POST',
     headers: headers(token),
     body: JSON.stringify({
-      properties: { title: 'Demon Slayer Fitness Tracker' },
-      sheets: [{
-        properties: { title: SHEET_TITLE },
-      }],
+      properties: { title: SHEET_NAME },
+      sheets: [{ properties: { title: SHEET_TITLE } }],
     }),
   });
   if (!res.ok) throw new Error('Failed to create spreadsheet');
@@ -28,7 +51,7 @@ export async function getOrCreateSpreadsheet(token) {
   const id = data.spreadsheetId;
   localStorage.setItem('ds_sheet_id', id);
 
-  // Write header row
+  // Write header row into the new sheet
   await appendRows(token, id, [COLUMNS]);
   return id;
 }
