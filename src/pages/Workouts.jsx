@@ -3,8 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { logWorkout, fetchWorkouts, getSheetUrl } from '../services/googleSheets';
+import { getHevyKey, fetchHevyWorkouts, hevyToEntry, markAsSynced } from '../services/hevy';
 import { EXERCISES, CATEGORIES, MUSCLE_GROUPS, getMusclesFromWorkouts } from '../data/exercises';
 import MuscleSkeleton from '../components/MuscleSkeleton/MuscleSkeleton';
+import HevyConnect from '../components/HevyConnect/HevyConnect';
 import DSIcon from '../components/DSIcon/DSIcon';
 import styles from './Workouts.module.css';
 
@@ -258,24 +260,57 @@ function WorkoutRow({ workout, primary }) {
 export default function Workouts() {
   const { theme, styleId } = useTheme();
   const { accessToken } = useAuth();
-  const [workouts, setWorkouts] = useState([]);
-  const [submitting, setSubmitting] = useState(false);
-  const [toast, setToast] = useState(null);
-  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [workouts,      setWorkouts]      = useState([]);
+  const [submitting,    setSubmitting]    = useState(false);
+  const [toast,         setToast]         = useState(null);
+  const [loadingHistory,setLoadingHistory]= useState(false);
+  const [hevySyncing,   setHevySyncing]   = useState(false);
 
-  const primary = theme?.colors.primary || '#FF4500';
-  const sheetUrl = getSheetUrl();
-  const todayStr = new Date().toLocaleDateString();
-  const todayMuscles = getMusclesFromWorkouts(workouts.filter(w => w.date === todayStr));
+  const primary    = theme?.colors.primary || '#FF4500';
+  const sheetUrl   = getSheetUrl();
+  const todayStr   = new Date().toLocaleDateString();
+  const todayMuscles   = getMusclesFromWorkouts(workouts.filter(w => w.date === todayStr));
   const allTimeMuscles = getMusclesFromWorkouts(workouts);
 
   useEffect(() => {
     if (!accessToken) return;
     setLoadingHistory(true);
-    fetchWorkouts(accessToken).then(setWorkouts).catch(console.error).finally(() => setLoadingHistory(false));
+    fetchWorkouts(accessToken)
+      .then(rows => { setWorkouts(rows); return rows; })
+      .catch(console.error)
+      .finally(() => setLoadingHistory(false));
   }, [accessToken]);
 
-  const showToast = (msg, ok=true) => { setToast({ msg, ok }); setTimeout(() => setToast(null), 3000); };
+  const showToast = (msg, ok=true) => { setToast({ msg, ok }); setTimeout(() => setToast(null), 3500); };
+
+  // ── Hevy sync ────────────────────────────────────────────────
+  const syncHevy = async () => {
+    const hevyKey = getHevyKey();
+    if (!hevyKey) return;
+    setHevySyncing(true);
+    try {
+      const newWorkouts = await fetchHevyWorkouts(hevyKey);
+      if (!newWorkouts.length) { showToast('Hevy is up to date.'); return; }
+
+      const entries = newWorkouts.map(w => hevyToEntry(w, theme?.name || ''));
+      // Add to local state immediately
+      setWorkouts(prev => [...entries, ...prev]);
+
+      // Sync to Google Sheets if connected
+      if (accessToken) {
+        for (const entry of entries) {
+          await logWorkout(accessToken, entry);
+        }
+      }
+
+      markAsSynced(newWorkouts.map(w => w.id));
+      showToast(`Synced ${newWorkouts.length} new Hevy workout${newWorkouts.length > 1 ? 's' : ''}!`);
+    } catch (err) {
+      showToast(`Hevy sync failed: ${err.message}`, false);
+    } finally {
+      setHevySyncing(false);
+    }
+  };
 
   const handleSave = async (formData) => {
     const entry = { ...formData, breathingStyle: theme?.name || styleId || 'Unknown' };
@@ -301,11 +336,21 @@ export default function Workouts() {
         )}
       </motion.div>
 
+      {/* Hevy integration card */}
+      <motion.div className={styles.hevyCard} initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.05 }}>
+        <HevyConnect onSynced={syncHevy} />
+        {hevySyncing && (
+          <p className={styles.hevySyncing} style={{ color: primary }}>
+            Syncing Hevy workouts…
+          </p>
+        )}
+      </motion.div>
+
       <div className={styles.skeletonRow}>
-        <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.05 }} style={{ flex:1, minWidth:0 }}>
+        <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.08 }} style={{ flex:1, minWidth:0 }}>
           <MuscleSkeleton muscleCounts={todayMuscles} title="Today's Muscles" />
         </motion.div>
-        <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.1 }} style={{ flex:1, minWidth:0 }}>
+        <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.12 }} style={{ flex:1, minWidth:0 }}>
           <MuscleSkeleton muscleCounts={allTimeMuscles} title="All-Time Activity" />
         </motion.div>
       </div>
@@ -323,7 +368,9 @@ export default function Workouts() {
         {loadingHistory && <p className={styles.loading}>Loading history...</p>}
         {!loadingHistory && workouts.length === 0 && <p className={styles.empty}>No training logged yet. Begin your journey, Demon Slayer.</p>}
         <div className={styles.historyList}>
-          {workouts.map((w, i) => <WorkoutRow key={i} workout={w} primary={primary} />)}
+          {workouts.map((w, i) => (
+            <WorkoutRow key={w.hevyId || i} workout={w} primary={primary} />
+          ))}
         </div>
       </motion.div>
 

@@ -626,3 +626,31 @@
     padding: 5rem 1rem 1rem;
   }
 }
+
+.hevyCard {
+  background: var(--card-gradient);
+  border: 1px solid var(--color-primary);
+  border-radius: 14px;
+  padding: 1.1rem 1.25rem;
+  box-shadow: var(--border-glow);
+}
+
+.hevySyncing {
+  font-size: 0.8rem;
+  margin: 0.5rem 0 0;
+  font-family: var(--font-mono);
+  animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.fieldLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}

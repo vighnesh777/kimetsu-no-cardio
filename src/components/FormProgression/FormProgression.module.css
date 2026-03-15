@@ -1,0 +1,112 @@
+.wrap {
+  background: var(--card-gradient);
+  border: 1px solid var(--color-primary);
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--border-glow);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.icon {
+  font-size: 2rem;
+  filter: drop-shadow(0 0 8px var(--color-glow));
+}
+
+.styleName {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.4);
+  margin: 0 0 0.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.formLabel {
+  font-family: var(--font-title);
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.formCount {
+  font-family: var(--font-mono);
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.formCountLabel {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Progress bar */
+.barTrack {
+  height: 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 100px;
+  min-width: 4px;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.workoutCount {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.35);
+}
+
+.nextUnlock {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.4);
+}
+
+.mastered {
+  font-family: var(--font-title);
+  font-size: 0.78rem;
+}
+
+/* Form dots */
+.dots {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  transition: all 0.3s;
+  cursor: default;
+}

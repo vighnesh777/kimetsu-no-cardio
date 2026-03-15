@@ -53,23 +53,36 @@ export function AvatarImage({ hunter, imageUrl, size = 40, loading = false, clas
 
 // ── Main selector modal ───────────────────────────────────────
 export default function AvatarSelector({ onClose, onSelect }) {
-  const { theme, selectStyle } = useTheme();
-  const { avatarId, selectAvatar } = useAvatar();   // ← shared context
+  const { theme, styleId, selectStyle } = useTheme();
+  const { avatarId, selectAvatar } = useAvatar();
   const { imageForId, isLoading } = useHunterImages();
 
-  const [hoveredId, setHoveredId] = useState(null);
-  const [selectedId, setSelectedId] = useState(avatarId);
+  const [hoveredId,    setHoveredId]    = useState(null);
+  const [selectedId,   setSelectedId]   = useState(avatarId);
+  // Warning state: holds the hunter the user clicked before confirming
+  const [pendingHunter, setPendingHunter] = useState(null);
 
   const primary = theme?.colors.primary || '#FF4500';
 
   const hoveredHunter = hoveredId ? HUNTERS.find(h => h.id === hoveredId) : null;
   const hoveredImg    = hoveredId ? imageForId(hoveredId) : null;
 
-  const handleSelect = (hunter) => {
+  const applyHunter = (hunter) => {
     setSelectedId(hunter.id);
-    selectAvatar(hunter.id);          // updates shared context → all consumers re-render
+    selectAvatar(hunter.id);
     selectStyle(hunter.breathingStyleId);
     onSelect?.(hunter);
+    setPendingHunter(null);
+  };
+
+  const handleSelect = (hunter) => {
+    // If breathing style is changing, show a warning first
+    const styleChanging = styleId && hunter.breathingStyleId !== styleId;
+    if (styleChanging) {
+      setPendingHunter(hunter);   // show confirmation dialog
+    } else {
+      applyHunter(hunter);
+    }
   };
 
   return (
@@ -201,6 +214,56 @@ export default function AvatarSelector({ onClose, onSelect }) {
           </motion.button>
         </div>
       </motion.div>
+
+      {/* ── Breathing style change warning ───────────────────── */}
+      <AnimatePresence>
+        {pendingHunter && (
+          <motion.div
+            className={styles.warningOverlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <motion.div
+              className={styles.warningBox}
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              transition={{ duration: 0.2 }}
+            >
+              <p className={styles.warningTitle}>Change Breathing Style?</p>
+              <p className={styles.warningBody}>
+                Switching to <strong style={{ color: primary }}>{pendingHunter.name}</strong> will
+                change your Breathing Style from{' '}
+                <strong>{styleId?.charAt(0).toUpperCase() + styleId?.slice(1)} Breathing</strong> to{' '}
+                <strong style={{ color: primary }}>
+                  {pendingHunter.breathingStyleId.charAt(0).toUpperCase()
+                    + pendingHunter.breathingStyleId.slice(1)} Breathing
+                </strong>.
+              </p>
+              <p className={styles.warningNote}>
+                Your form progression and training history are preserved — only the theme changes.
+              </p>
+              <div className={styles.warningActions}>
+                <button
+                  className={styles.warningCancel}
+                  onClick={() => setPendingHunter(null)}
+                >
+                  Keep Current Style
+                </button>
+                <button
+                  className={styles.warningConfirm}
+                  style={{ background: primary }}
+                  onClick={() => applyHunter(pendingHunter)}
+                >
+                  Switch Style
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

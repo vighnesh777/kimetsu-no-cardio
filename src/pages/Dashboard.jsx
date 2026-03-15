@@ -6,7 +6,9 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { fetchAllFitnessData } from '../services/googleFit';
 import StatsCard from '../components/StatsCard/StatsCard';
+import FormProgression from '../components/FormProgression/FormProgression';
 import DSIcon from '../components/DSIcon/DSIcon';
+import { fetchWorkouts as fetchSheetWorkouts } from '../services/googleSheets';
 import styles from './Dashboard.module.css';
 
 const STEP_GOAL = 10000;
@@ -40,9 +42,18 @@ export default function Dashboard() {
   const { theme } = useTheme();
   const { accessToken, user, isApiConnected } = useAuth();
   const navigate = useNavigate();
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [lastUpdated, setLastUpdated] = useState(null);
+  const [data,          setData]         = useState(null);
+  const [loading,       setLoading]       = useState(true);
+  const [lastUpdated,   setLastUpdated]   = useState(null);
+  const [totalWorkouts, setTotalWorkouts] = useState(0);
+
+  // Fetch workout count from Sheets for form progression
+  useEffect(() => {
+    if (!accessToken) return;
+    fetchSheetWorkouts(accessToken)
+      .then(rows => setTotalWorkouts(rows.length))
+      .catch(() => {});
+  }, [accessToken]);
 
   useEffect(() => {
     if (!accessToken) {
@@ -157,7 +168,9 @@ export default function Dashboard() {
         </div>
       </motion.div>
 
-      <motion.div className={styles.styleInfoCard} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45, duration: 0.5 }}>
+      <FormProgression totalWorkouts={totalWorkouts} />
+
+      <motion.div className={styles.styleInfoCard} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.5 }}>
         <div className={styles.styleInfoLeft}>
           <DSIcon name="style" size={36} color={primary} />
           <div>
