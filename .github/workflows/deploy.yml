@@ -32,10 +32,9 @@ jobs:
         run: npm ci
 
       - name: Build
-        # VITE_REPO_NAME must match your GitHub repository name exactly.
-        # It sets the base path so all asset URLs are correct on GitHub Pages.
-        # e.g. if your repo is github.com/you/tracker → VITE_REPO_NAME=tracker
-        run: VITE_REPO_NAME=${{ github.event.repository.name }} npm run build
+        # VITE_REPO_NAME sets the base path for GitHub Pages.
+        # VITE_HEVY_API_KEY is stored as a GitHub Secret (repo Settings → Secrets → Actions).
+        run: VITE_REPO_NAME=${{ github.event.repository.name }} VITE_HEVY_API_KEY=${{ secrets.VITE_HEVY_API_KEY }} npm run build
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

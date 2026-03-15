@@ -3,18 +3,15 @@
 // Users get their API key from Hevy app → Settings → API Key
 
 const HEVY_BASE      = 'https://api.hevyapp.com';
-const KEY_STORE      = 'ds_hevy_key';
 const LAST_SYNC_KEY  = 'ds_hevy_last_sync';
 const SYNCED_IDS_KEY = 'ds_hevy_synced_ids';
 
-// ── Key management ──────────────────────────────────────────────
-export const getHevyKey     = ()  => localStorage.getItem(KEY_STORE) || '';
-export const saveHevyKey    = (k) => localStorage.setItem(KEY_STORE, k.trim());
-export const clearHevyKey   = ()  => {
-  localStorage.removeItem(KEY_STORE);
-  localStorage.removeItem(LAST_SYNC_KEY);
-  localStorage.removeItem(SYNCED_IDS_KEY);
-};
+// ── Key resolution ──────────────────────────────────────────────
+// Key is baked in at build time via VITE_HEVY_API_KEY in .env.local
+// (never committed — add as a GitHub Secret for production builds)
+const ENV_KEY = import.meta.env.VITE_HEVY_API_KEY || '';
+
+export const getHevyKey      = () => ENV_KEY;
 export const getLastSyncTime = () => localStorage.getItem(LAST_SYNC_KEY);
 
 // ── Muscle mapping: Hevy → react-body-highlighter IDs ──────────
