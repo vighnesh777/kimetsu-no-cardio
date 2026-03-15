@@ -38,7 +38,7 @@ function MotivationalBanner({ theme }) {
 
 export default function Dashboard() {
   const { theme } = useTheme();
-  const { accessToken, user } = useAuth();
+  const { accessToken, user, isApiConnected } = useAuth();
   const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -46,23 +46,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!accessToken) {
-      setData({
-        steps: 7342,
-        calories: 412,
-        distance: '5.21',
-        heartRate: 72,
-        sleep: '7.2',
-        activeMinutes: 28,
-        weeklySteps: [
-          { day: 'Mon', steps: 8200 },
-          { day: 'Tue', steps: 6500 },
-          { day: 'Wed', steps: 9800 },
-          { day: 'Thu', steps: 7100 },
-          { day: 'Fri', steps: 5400 },
-          { day: 'Sat', steps: 11200 },
-          { day: 'Sun', steps: 7342 },
-        ],
-      });
+      setData(null);
       setLoading(false);
       return;
     }
@@ -89,9 +73,29 @@ export default function Dashboard() {
     return 'Good evening';
   };
 
+  // Token expired but user still signed in to Firebase
+  const showReconnectBanner = user && !isApiConnected;
+
   return (
     <div className={styles.page}>
       <MotivationalBanner theme={theme} />
+
+      {showReconnectBanner && (
+        <motion.div
+          className={styles.reconnectBanner}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <DSIcon name="google" size={16} color="#faad14" />
+          <span>
+            Google Fit session expired.{' '}
+            <button className={styles.reconnectLink} onClick={() => navigate('/onboarding')}>
+              Reconnect
+            </button>{' '}
+            to sync live data.
+          </span>
+        </motion.div>
+      )}
 
       <motion.div className={styles.header} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
         <div>
@@ -108,10 +112,10 @@ export default function Dashboard() {
           </p>
         </div>
 
-        {!accessToken && (
+        {!isApiConnected && (
           <button onClick={() => navigate('/onboarding')} className={styles.connectBtn}>
             <DSIcon name="google" size={14} />
-            Connect Google Fit
+            {user ? 'Reconnect Google Fit' : 'Connect Google Fit'}
           </button>
         )}
       </motion.div>
@@ -166,7 +170,7 @@ export default function Dashboard() {
           <span className={styles.styleInfoRank}>{theme?.rank}</span>
         </div>
         <p className={styles.styleInfoDesc}>{theme?.description}</p>
-        <a href="/style" className={styles.changeStyleLink}>Change Style →</a>
+        <button onClick={() => navigate('/onboarding')} className={styles.changeStyleLink}>Change Hunter →</button>
       </motion.div>
     </div>
   );

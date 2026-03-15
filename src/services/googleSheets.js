@@ -7,7 +7,7 @@ const headers = (token) => ({
 });
 
 const SHEET_TITLE = 'Workouts';
-const COLUMNS = ['Date', 'Breathing Style', 'Exercise', 'Sets', 'Reps', 'Duration (min)', 'Calories', 'Notes'];
+const COLUMNS = ['Date', 'Breathing Style', 'Exercise', 'Sets', 'Reps', 'Duration (min)', 'Calories', 'Notes', 'Muscles'];
 
 export async function getOrCreateSpreadsheet(token) {
   const saved = localStorage.getItem('ds_sheet_id');
@@ -57,6 +57,7 @@ export async function logWorkout(token, workout) {
     workout.duration || '',
     workout.calories || '',
     workout.notes || '',
+    Array.isArray(workout.muscles) ? workout.muscles.join(',') : '',
   ];
   return appendRows(token, sheetId, [row]);
 }
@@ -66,7 +67,7 @@ export async function fetchWorkouts(token) {
   if (!sheetId) return [];
 
   const res = await fetch(
-    `${SHEETS_BASE}/${sheetId}/values/${SHEET_TITLE}!A2:H`,
+    `${SHEETS_BASE}/${sheetId}/values/${SHEET_TITLE}!A2:I`,
     { headers: headers(token) }
   );
   if (!res.ok) return [];
@@ -82,6 +83,8 @@ export async function fetchWorkouts(token) {
     duration: row[5] || '',
     calories: row[6] || '',
     notes: row[7] || '',
+    // Parse muscles back from comma-separated string (col I)
+    muscles: row[8] ? row[8].split(',').filter(Boolean) : [],
   })).reverse();
 }
 

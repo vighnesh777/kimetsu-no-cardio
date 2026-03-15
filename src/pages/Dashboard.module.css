@@ -8,6 +8,30 @@
   gap: 1.5rem;
 }
 
+.reconnectBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(250, 173, 20, 0.08);
+  border: 1px solid #faad14;
+  border-radius: 10px;
+  padding: 0.65rem 1rem;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.7);
+}
+
+.reconnectLink {
+  background: none;
+  border: none;
+  color: #faad14;
+  font-weight: 700;
+  font-size: inherit;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .banner {
   display: flex;
   align-items: center;

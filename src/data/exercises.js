@@ -1,33 +1,25 @@
 // Comprehensive exercise library with muscle group mappings.
 // muscles array uses react-body-highlighter MuscleType IDs exactly.
 
+// Keys must exactly match react-body-highlighter MuscleType IDs
 export const MUSCLE_GROUPS = {
-  chest:          { label: 'Chest',        view: 'front' },
-  abs:            { label: 'Abs',          view: 'front' },
-  obliques:       { label: 'Obliques',     view: 'front' },
+  chest:            { label: 'Chest',       view: 'front' },
+  abs:              { label: 'Abs',         view: 'front' },
+  obliques:         { label: 'Obliques',    view: 'front' },
   'front-deltoids': { label: 'Front Delts', view: 'front' },
-  biceps:         { label: 'Biceps',       view: 'front' },
-  forearm:        { label: 'Forearms',     view: 'front' },
-  quadriceps:     { label: 'Quads',        view: 'front' },
-  calves:         { label: 'Calves',       view: 'both'  },
-  trapezius:      { label: 'Traps',        view: 'back'  },
-  'upper-back':   { label: 'Upper Back',   view: 'back'  },
-  'lower-back':   { label: 'Lower Back',   view: 'back'  },
-  'back-deltoids':{ label: 'Rear Delts',   view: 'back'  },
-  triceps:        { label: 'Triceps',      view: 'back'  },
-  gluteal:        { label: 'Glutes',       view: 'back'  },
-  hamstring:      { label: 'Hamstrings',   view: 'back'  },
-  abductors:      { label: 'Abductors',    view: 'back'  },
-  quads:          { label: 'Quads',        view: 'front', color: '#2ecc71' },
-  calves:         { label: 'Calves',       view: 'both',  color: '#27ae60' },
-  traps:          { label: 'Traps',        view: 'back',  color: '#8e44ad' },
-  upper_back:     { label: 'Upper Back',   view: 'back',  color: '#2980b9' },
-  lats:           { label: 'Lats',         view: 'back',  color: '#16a085' },
-  lower_back:     { label: 'Lower Back',   view: 'back',  color: '#d35400' },
-  rear_shoulders: { label: 'Rear Delts',   view: 'back',  color: '#8e44ad' },
-  triceps:        { label: 'Triceps',      view: 'back',  color: '#2471a3' },
-  glutes:         { label: 'Glutes',       view: 'back',  color: '#a93226' },
-  hamstrings:     { label: 'Hamstrings',   view: 'back',  color: '#1e8449' },
+  biceps:           { label: 'Biceps',      view: 'front' },
+  forearm:          { label: 'Forearms',    view: 'front' },
+  quadriceps:       { label: 'Quads',       view: 'front' },
+  calves:           { label: 'Calves',      view: 'both'  },
+  trapezius:        { label: 'Traps',       view: 'back'  },
+  'upper-back':     { label: 'Upper Back',  view: 'back'  },
+  'lower-back':     { label: 'Lower Back',  view: 'back'  },
+  'back-deltoids':  { label: 'Rear Delts',  view: 'back'  },
+  triceps:          { label: 'Triceps',     view: 'back'  },
+  gluteal:          { label: 'Glutes',      view: 'back'  },
+  hamstring:        { label: 'Hamstrings',  view: 'back'  },
+  abductors:        { label: 'Abductors',   view: 'back'  },
+  adductor:         { label: 'Adductors',   view: 'front' },
 };
 
 export const EXERCISES = [
@@ -139,17 +131,24 @@ export const EXERCISES = [
 // Build a lookup map: exercise name → exercise object
 export const EXERCISE_MAP = Object.fromEntries(EXERCISES.map(e => [e.name, e]));
 
-/** Return muscles trained from a list of exercise names stored in sheets */
+/** Return muscles trained from a list of workout objects.
+ *  Priority: use w.muscles (set at log time, covers custom exercises)
+ *  Fallback: look up by exercise name in EXERCISE_MAP (covers Sheets-fetched rows)
+ */
 export function getMusclesFromWorkouts(workouts) {
   const counts = {};
   workouts.forEach(w => {
-    const ex = EXERCISE_MAP[w.exercise];
-    if (!ex) return;
-    ex.muscles.forEach(m => {
-      counts[m] = (counts[m] || 0) + 1;
+    // w.muscles is an array when available (fresh log or parsed from Sheets)
+    const muscles =
+      (Array.isArray(w.muscles) && w.muscles.length > 0)
+        ? w.muscles
+        : EXERCISE_MAP[w.exercise]?.muscles || [];
+
+    muscles.forEach(m => {
+      if (m) counts[m] = (counts[m] || 0) + 1;
     });
   });
-  return counts; // { chest: 3, abs: 5, ... }
+  return counts;
 }
 
 /** Muscles trained from workouts on a specific date string */
