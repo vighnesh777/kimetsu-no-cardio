@@ -18,10 +18,13 @@ import styles from './InfinityCastle.module.css';
  *   (also accepts .png or .webp — try each extension in order)
  */
 
+// import.meta.env.BASE_URL is '/' locally and '/kimetsu-no-cardio/' on GitHub Pages
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, ''); // strip trailing slash
+
 const IMAGE_CANDIDATES = [
-  '/infinity-castle.jpg',
-  '/infinity-castle.png',
-  '/infinity-castle.webp',
+  `${BASE}/infinity-castle.jpg`,
+  `${BASE}/infinity-castle.png`,
+  `${BASE}/infinity-castle.webp`,
 ];
 
 function tryLoadImage(src) {
