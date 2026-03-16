@@ -1,0 +1,66 @@
+.canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Image-based layers ─────────────────────────────── */
+.imageCastle {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.imageLayer {
+  position: absolute;
+  inset: -8%;           /* slightly oversized for the Ken Burns motion */
+  background-size: cover;
+  background-position: center;
+  animation: kenBurns 30s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes kenBurns {
+  0%   { transform: scale(1.08) translate(0%, 0%); }
+  25%  { transform: scale(1.12) translate(-1.5%, 1%); }
+  50%  { transform: scale(1.10) translate(1%, -1.5%); }
+  75%  { transform: scale(1.13) translate(-1%, 1.5%); }
+  100% { transform: scale(1.08) translate(0.5%, -0.5%); }
+}
+
+.darkOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 1, 10, 0.60); /* darkens the image so text remains readable */
+}
+
+.tintOverlay {
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: color; /* tints the image in the breathing style colour */
+  pointer-events: none;
+}
+
+.bottomFade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(2, 1, 10, 0.85) 0%,
+    rgba(2, 1, 10, 0.3)  40%,
+    rgba(2, 1, 10, 0)    70%
+  );
+}
+
+.particleCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.7;
+}

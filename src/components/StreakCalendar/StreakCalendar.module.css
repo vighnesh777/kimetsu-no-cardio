@@ -1,0 +1,171 @@
+.wrap {
+  background: var(--card-gradient);
+  border: 1px solid var(--color-primary);
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--border-glow);
+}
+
+.header { margin-bottom: 1rem; }
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.streakBadge {
+  font-family: var(--font-title);
+  font-size: 0.82rem;
+  font-weight: 400;
+  padding: 0.2rem 0.65rem;
+  border-radius: 100px;
+  border: 1px solid;
+  letter-spacing: 0.5px;
+}
+
+.sub {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.38);
+  margin: 0;
+}
+
+/* Calendar layout */
+.calendarWrap {
+  display: flex;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.dayLabels {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 18px; /* clear the month label row height */
+  flex-shrink: 0;
+  margin-right: 4px;
+}
+
+.dayLabel {
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.25);
+  text-align: right;
+  height: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  white-space: nowrap;
+}
+
+.gridOuter {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: visible;
+  /* smooth scroll so auto-scroll to current week feels natural */
+  scroll-behavior: smooth;
+  /* hide scrollbar on webkit but keep it functional */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) rgba(255,255,255,0.05);
+}
+
+.gridOuter::-webkit-scrollbar {
+  height: 4px;
+}
+.gridOuter::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.04);
+  border-radius: 2px;
+}
+.gridOuter::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 2px;
+  opacity: 0.5;
+}
+
+.monthRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  margin-bottom: 4px;
+  height: 14px;
+}
+
+.monthLabel {
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.3);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* The grid is rendered as a flex row of "week columns",
+   each week column is a flex column of 7 square cells.
+   Month boundaries get extra left padding. */
+.grid {
+  display: flex;
+  gap: 2px;
+  align-items: flex-start;
+}
+
+.weekCol {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.weekCol.monthStart {
+  margin-left: 6px; /* visual gap between months */
+}
+
+.cell {
+  width: 11px;
+  height: 11px;
+  border-radius: 2px;
+  border: 1px solid transparent;
+  flex-shrink: 0;
+  transition: transform 0.1s;
+  cursor: default;
+}
+
+.cellToday {
+  border-width: 1px;
+  border-style: solid;
+}
+
+/* Legend */
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 0.85rem;
+}
+
+.legendLabel {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.3);
+}
+
+.legendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.legendSpacer {
+  flex: 1;
+}
+
+@media (max-width: 600px) {
+  .wrap { padding: 1rem; }
+  .dayLabel { display: none; }
+  .calendarWrap { gap: 0; }
+}

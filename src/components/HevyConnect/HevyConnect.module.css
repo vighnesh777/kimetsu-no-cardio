@@ -55,8 +55,13 @@
   font-size: 0.7rem;
 }
 
-.syncBtn {
+.actions {
   margin-left: auto;
+  display: flex;
+  gap: 0.4rem;
+}
+
+.syncBtn {
   background: transparent;
   border: 1px solid;
   font-size: 0.78rem;
@@ -69,7 +74,21 @@
   white-space: nowrap;
 }
 
-.syncBtn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+.syncBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.fullSyncBtn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.4);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.3rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  white-space: nowrap;
 }
+
+.fullSyncBtn:hover { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.6); }
+.fullSyncBtn:disabled { opacity: 0.3; cursor: not-allowed; }

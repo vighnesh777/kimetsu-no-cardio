@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { getHevyKey, getLastSyncTime } from '../../services/hevy';
+import { getHevyKey, getLastSyncTime, clearSyncedIds } from '../../services/hevy';
 import { useTheme } from '../../contexts/ThemeContext';
 import styles from './HevyConnect.module.css';
 
@@ -15,6 +15,11 @@ export default function HevyConnect({ onSynced, syncing }) {
         hour: '2-digit', minute: '2-digit',
       })
     : 'Never';
+
+  const handleFullSync = () => {
+    clearSyncedIds();   // wipe the cache so ALL historical workouts are fetched
+    onSynced(false);    // trigger sync with toast
+  };
 
   if (!connected) {
     return (
@@ -36,16 +41,28 @@ export default function HevyConnect({ onSynced, syncing }) {
           <p className={styles.label}>Hevy Connected</p>
           <p className={styles.lastSync}>Last sync: {lastSyncLabel}</p>
         </div>
-        <motion.button
-          className={styles.syncBtn}
-          style={{ color: primary, borderColor: primary }}
-          onClick={onSynced}
-          disabled={syncing}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-        >
-          {syncing ? 'Syncing…' : 'Sync Now'}
-        </motion.button>
+        <div className={styles.actions}>
+          <motion.button
+            className={styles.syncBtn}
+            style={{ color: primary, borderColor: primary }}
+            onClick={() => onSynced(false)}
+            disabled={syncing}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            {syncing ? 'Syncing…' : 'Sync Now'}
+          </motion.button>
+          <motion.button
+            className={styles.fullSyncBtn}
+            onClick={handleFullSync}
+            disabled={syncing}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            title="Clears sync cache and re-fetches all Hevy history"
+          >
+            Full Sync
+          </motion.button>
+        </div>
       </div>
     </div>
   );

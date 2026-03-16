@@ -1,118 +1,112 @@
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../../contexts/ThemeContext';
+import { getOrdinal } from '../../data/breathingForms';
 import styles from './FormProgression.module.css';
 
-// Workouts required to unlock each form (cumulative)
-// Form 1 is always unlocked; each subsequent form needs progressively more workouts
-const FORM_THRESHOLDS = [0, 5, 12, 22, 35, 50, 68, 88, 110, 135, 162, 192, 225, 260, 298, 340];
+const ORDINAL_KANJI = ['壱','弐','参','肆','伍','陸','漆','捌','玖','拾',
+  '拾壱','拾弐','拾参','拾肆','拾伍','拾陸'];
 
-// Roman numeral labels
-const ROMAN = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI'];
-
-export function getFormLevel(totalWorkouts, formCount) {
-  const maxForm  = Math.min(formCount, FORM_THRESHOLDS.length);
-  let currentForm = 1;
-  for (let i = 1; i < maxForm; i++) {
-    if (totalWorkouts >= FORM_THRESHOLDS[i]) currentForm = i + 1;
-    else break;
-  }
-  return currentForm;
-}
-
-export function getFormProgress(totalWorkouts, formCount) {
-  const maxForm     = Math.min(formCount, FORM_THRESHOLDS.length);
-  const currentForm = getFormLevel(totalWorkouts, formCount);
-
-  if (currentForm >= maxForm) {
-    return { currentForm, nextForm: null, progress: 100, needed: 0, current: totalWorkouts };
-  }
-
-  const currentThreshold = FORM_THRESHOLDS[currentForm - 1];
-  const nextThreshold    = FORM_THRESHOLDS[currentForm];
-  const progressInRange  = totalWorkouts - currentThreshold;
-  const rangeSize        = nextThreshold - currentThreshold;
-  const progress         = Math.min((progressInRange / rangeSize) * 100, 100);
-  const needed           = nextThreshold - totalWorkouts;
-
-  return { currentForm, nextForm: currentForm + 1, progress, needed, current: totalWorkouts };
-}
-
-export default function FormProgression({ totalWorkouts = 0 }) {
+export default function FormProgression({ forms = [], unlockedForms = 0, totalForms = 0 }) {
   const { theme } = useTheme();
-  if (!theme) return null;
+  const [expanded, setExpanded] = useState(false);
+  const [selected, setSelected] = useState(null);
+  const primary = theme?.colors.primary || '#FF4500';
 
-  const primary    = theme.colors.primary;
-  const accent     = theme.colors.accent;
-  const formCount  = theme.formCount;
-  const { currentForm, nextForm, progress, needed } = getFormProgress(totalWorkouts, formCount);
-  const isMastered = !nextForm;
+  if (!forms.length) return null;
+
+  const currentForm = forms[unlockedForms - 1] || forms[0];
+  const nextForm    = forms[unlockedForms] || null;
+  const progress    = totalForms > 0 ? (unlockedForms / totalForms) * 100 : 0;
 
   return (
-    <motion.div
-      className={styles.wrap}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.5 }}
-    >
+    <motion.div className={styles.wrap} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
       <div className={styles.header}>
-        <div className={styles.left}>
-          <span className={styles.icon}>{theme.icon}</span>
-          <div>
-            <p className={styles.styleName}>{theme.name}</p>
-            <p className={styles.formLabel} style={{ color: primary }}>
-              {isMastered ? 'All Forms Mastered' : `Form ${ROMAN[currentForm - 1]}`}
-            </p>
+        <div className={styles.headerLeft}>
+          <span className={styles.styleName}>{theme?.name}</span>
+          <span className={styles.styleJp}>{theme?.japanese}</span>
+        </div>
+        <div className={styles.headerRight}>
+          <span className={styles.formCount} style={{ color: primary }}>{unlockedForms} / {totalForms} Forms</span>
+          <button className={styles.expandBtn} onClick={() => setExpanded(v => !v)} style={{ color: primary }}>
+            {expanded ? 'Collapse' : 'View All'}
+          </button>
+        </div>
+      </div>
+
+      {currentForm && (
+        <motion.div className={styles.currentForm} style={{ borderColor: primary, background: `${primary}10` }}>
+          <div className={styles.currentFormLeft}>
+            <span className={styles.formOrdinalKanji} style={{ color: primary }}>
+              {ORDINAL_KANJI[(currentForm.number || 1) - 1] || currentForm.number}ノ型
+            </span>
+            <span className={styles.formEnglish}>{currentForm.english}</span>
+            <span className={styles.formJapanese}>{currentForm.japanese}</span>
           </div>
+          <div className={styles.currentBadge} style={{ background: primary }}>
+            <span>Current</span>
+          </div>
+        </motion.div>
+      )}
+
+      {nextForm && (
+        <div className={styles.nextFormRow}>
+          <span className={styles.nextLabel}>Next: {nextForm.english}</span>
+          <div className={styles.progressBar}>
+            <div className={styles.progressFill} style={{ width: `${progress}%`, background: primary }} />
+          </div>
+          <span className={styles.nextCount} style={{ color: primary }}>{unlockedForms * 5} / {(unlockedForms + 1) * 5} workouts</span>
         </div>
-        <div className={styles.right}>
-          <span className={styles.formCount} style={{ color: accent }}>
-            {currentForm} / {formCount}
-          </span>
-          <span className={styles.formCountLabel}>Forms</span>
-        </div>
-      </div>
+      )}
 
-      <div className={styles.barTrack}>
-        <motion.div
-          className={styles.barFill}
-          style={{ background: primary }}
-          initial={{ width: 0 }}
-          animate={{ width: `${progress}%` }}
-          transition={{ duration: 1, ease: 'easeOut', delay: 0.6 }}
-        />
-      </div>
+      {!nextForm && (
+        <p className={styles.masteredMsg} style={{ color: primary }}>All forms mastered. Complete mastery of {theme?.name} achieved.</p>
+      )}
 
-      <div className={styles.footer}>
-        <span className={styles.workoutCount}>
-          {totalWorkouts} workout{totalWorkouts !== 1 ? 's' : ''} logged
-        </span>
-        {!isMastered && (
-          <span className={styles.nextUnlock}>
-            {needed} more to unlock Form {ROMAN[currentForm]}
-          </span>
+      <AnimatePresence>
+        {expanded && (
+          <motion.div className={styles.formList} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.3 }}>
+            {forms.map((form, i) => {
+              const unlocked  = i < unlockedForms;
+              const isCurrent = i === unlockedForms - 1;
+              return (
+                <motion.button
+                  key={form.number}
+                  className={`${styles.formRow} ${unlocked ? styles.unlocked : styles.locked} ${isCurrent ? styles.isCurrent : ''}`}
+                  style={isCurrent ? { borderColor: primary } : {}}
+                  onClick={() => setSelected(selected?.number === form.number ? null : form)}
+                  initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03 }}
+                >
+                  <span className={styles.rowOrdinal} style={{ color: unlocked ? primary : undefined }}>
+                    {ORDINAL_KANJI[i] || i + 1}ノ型
+                  </span>
+                  <div className={styles.rowInfo}>
+                    <span className={styles.rowEnglish}>{unlocked ? form.english : `${getOrdinal(form.number)} Form — Locked`}</span>
+                    {unlocked && <span className={styles.rowJapanese}>{form.japanese}</span>}
+                  </div>
+                  {unlocked
+                    ? <span className={styles.unlockedDot} style={{ background: primary }} />
+                    : <span className={styles.lockedIcon}>鍵</span>}
+                </motion.button>
+              );
+            })}
+          </motion.div>
         )}
-        {isMastered && (
-          <span className={styles.mastered} style={{ color: accent }}>
-            {theme.rank} — Fully Mastered
-          </span>
-        )}
-      </div>
+      </AnimatePresence>
 
-      {/* Form dots */}
-      <div className={styles.dots}>
-        {Array.from({ length: formCount }, (_, i) => (
-          <div
-            key={i}
-            className={styles.dot}
-            title={`Form ${ROMAN[i]}`}
-            style={{
-              background: i < currentForm ? primary : 'rgba(255,255,255,0.08)',
-              boxShadow: i < currentForm ? `0 0 6px ${primary}` : 'none',
-              opacity: i < currentForm ? 1 : 0.4,
-            }}
-          />
-        ))}
-      </div>
+      <AnimatePresence>
+        {selected && selected.number <= unlockedForms && (
+          <motion.div className={styles.formDetail} style={{ borderColor: primary, background: `${primary}0A` }}
+            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }}>
+            <span className={styles.detailOrdinal} style={{ color: primary }}>
+              {ORDINAL_KANJI[(selected.number || 1) - 1] || selected.number}ノ型
+            </span>
+            <span className={styles.detailEnglish}>{selected.english}</span>
+            <span className={styles.detailJapanese}>{selected.japanese}</span>
+            <button className={styles.detailClose} onClick={() => setSelected(null)}>✕</button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

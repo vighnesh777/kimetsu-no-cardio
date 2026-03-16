@@ -8,99 +8,114 @@ import { useAvatar, AvatarImage } from '../components/AvatarSelector/AvatarSelec
 import GoogleAuth from '../components/GoogleAuth/GoogleAuth';
 import DSIcon from '../components/DSIcon/DSIcon';
 import { getStyle } from '../themes/breathingStyles';
+import InfinityCastle from '../components/InfinityCastle/InfinityCastle';
 import styles from './Onboarding.module.css';
 
-// ── Demon Slayer-style title logo (inline SVG — no external dependency) ──────
-function DSLogoSVG() {
-  const { theme } = useTheme();
-  const primary  = theme?.colors.primary  || '#C0392B';
-  const accent   = theme?.colors.accent   || '#F5CBA7';
-  const glow     = theme?.colors.glow     || 'rgba(192,57,43,0.7)';
-
+// ── DS-style title logo SVG — 鬼滅の刃 with CARDIO replacing 刃 ────────────
+function KimetsuNoCardioLogo({ primary, accent, glow }) {
   return (
     <svg
-      viewBox="0 0 360 160"
+      viewBox="0 0 420 170"
       xmlns="http://www.w3.org/2000/svg"
-      style={{ width: 'min(360px, 90vw)', height: 'auto', filter: `drop-shadow(0 0 18px ${glow})` }}
-      aria-label="Demon Slayer: Kimetsu no Yaiba"
+      style={{ width: 'min(420px,92vw)', height: 'auto', filter: `drop-shadow(0 0 20px ${glow})` }}
+      aria-label="Kimetsu no Cardio"
     >
       <defs>
-        <linearGradient id="logoGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <linearGradient id="kncGrad" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%"   stopColor={accent} />
-          <stop offset="45%"  stopColor={primary} />
-          <stop offset="100%" stopColor={primary} stopOpacity="0.7" />
+          <stop offset="50%"  stopColor={primary} />
+          <stop offset="100%" stopColor={primary} stopOpacity="0.75" />
         </linearGradient>
-        {/* Subtle horizontal lines texture — like the anime title card */}
-        <pattern id="lines" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
-          <line x1="0" y1="2" x2="4" y2="2" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5"/>
-        </pattern>
+        <linearGradient id="kncGradH" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%"   stopColor={primary} stopOpacity="0" />
+          <stop offset="20%"  stopColor={primary} stopOpacity="0.9" />
+          <stop offset="80%"  stopColor={primary} stopOpacity="0.9" />
+          <stop offset="100%" stopColor={primary} stopOpacity="0" />
+        </linearGradient>
       </defs>
 
-      {/* Background rect with line texture */}
-      <rect x="0" y="0" width="360" height="160" rx="4" fill="rgba(0,0,0,0.35)" />
-      <rect x="0" y="0" width="360" height="160" rx="4" fill="url(#lines)" />
+      {/* Outer frame */}
+      <rect x="6" y="6" width="408" height="158" rx="3" fill="rgba(0,0,0,0.45)" />
 
-      {/* Top decorative border */}
-      <rect x="8" y="8" width="344" height="2" fill={primary} opacity="0.7" rx="1" />
-      <rect x="8" y="150" width="344" height="2" fill={primary} opacity="0.7" rx="1" />
-      <rect x="8" y="8" width="2" height="144" fill={primary} opacity="0.5" rx="1" />
-      <rect x="350" y="8" width="2" height="144" fill={primary} opacity="0.5" rx="1" />
+      {/* Decorative border lines — top & bottom */}
+      <rect x="12" y="12"  width="396" height="1.5" fill="url(#kncGradH)" />
+      <rect x="12" y="156" width="396" height="1.5" fill="url(#kncGradH)" />
+      {/* left & right */}
+      <rect x="12"  y="12" width="1.5" height="146" fill={primary} opacity="0.55" />
+      <rect x="406" y="12" width="1.5" height="146" fill={primary} opacity="0.55" />
 
       {/* Corner ornaments */}
-      {[[14,14],[346,14],[14,146],[346,146]].map(([cx,cy],i) => (
-        <circle key={i} cx={cx} cy={cy} r="3" fill={primary} opacity="0.8" />
+      {[[16,16],[404,16],[16,154],[404,154]].map(([cx,cy],i)=>(
+        <circle key={i} cx={cx} cy={cy} r="3.5" fill={primary} opacity="0.8"/>
       ))}
 
-      {/* Main kanji — 鬼滅の刃 */}
+      {/* Thin horizontal rule mid-top */}
+      <line x1="60" y1="30" x2="360" y2="30" stroke={primary} strokeWidth="0.6" opacity="0.4"/>
+      {/* Thin horizontal rule mid-bottom */}
+      <line x1="60" y1="140" x2="360" y2="140" stroke={primary} strokeWidth="0.6" opacity="0.4"/>
+
+      {/* Main kanji row: 鬼滅の */}
       <text
-        x="180" y="90"
+        x="118" y="102"
         textAnchor="middle"
-        fontFamily="'Noto Serif JP', 'Hiragino Mincho Pro', serif"
-        fontSize="68"
+        fontFamily="'Noto Serif JP','Hiragino Mincho Pro','Yu Mincho',serif"
+        fontSize="72"
         fontWeight="900"
-        fill="url(#logoGrad)"
-        letterSpacing="6"
-        style={{ paintOrder: 'stroke' }}
-        stroke="rgba(0,0,0,0.5)"
+        fill="url(#kncGrad)"
+        letterSpacing="4"
+        paintOrder="stroke"
+        stroke="rgba(0,0,0,0.55)"
+        strokeWidth="2"
+      >鬼滅の</text>
+
+      {/* "CARDIO" — replaces 刃 (Yaiba), in Permanent Marker matching DS English sub-title style */}
+      <text
+        x="320" y="98"
+        textAnchor="middle"
+        fontFamily="'Permanent Marker',cursive"
+        fontSize="44"
+        fontWeight="400"
+        fill="url(#kncGrad)"
+        paintOrder="stroke"
+        stroke="rgba(0,0,0,0.55)"
         strokeWidth="1.5"
-      >
-        鬼滅の刃
-      </text>
+        letterSpacing="2"
+      >CARDIO</text>
 
-      {/* English subtitle */}
+      {/* Divider between kanji and CARDIO */}
+      <line x1="228" y1="42" x2="228" y2="118" stroke={primary} strokeWidth="0.8" opacity="0.45"/>
+
+      {/* Sub-label */}
       <text
-        x="180" y="118"
+        x="210" y="128"
         textAnchor="middle"
-        fontFamily="'Permanent Marker', cursive, sans-serif"
-        fontSize="13"
-        fontWeight="700"
-        fill={accent}
+        fontFamily="'Inter',sans-serif"
+        fontSize="9.5"
+        fill="rgba(255,255,255,0.38)"
         letterSpacing="5"
-        opacity="0.85"
-      >
-        DEMON SLAYER
-      </text>
+      >KIMETSU  NO  CARDIO</text>
 
-      {/* Thin divider */}
-      <line x1="80" y1="128" x2="280" y2="128" stroke={primary} strokeWidth="0.8" opacity="0.5" />
-
-      {/* Tagline */}
+      {/* Bottom Japanese tagline */}
       <text
-        x="180" y="143"
+        x="210" y="148"
         textAnchor="middle"
-        fontFamily="'Inter', sans-serif"
+        fontFamily="'Noto Serif JP',serif"
         fontSize="9"
-        fill="rgba(255,255,255,0.4)"
+        fill={primary}
+        opacity="0.55"
         letterSpacing="3"
-      >
-        KIMETSU NO YAIBA
-      </text>
+      >鬼を滅するが如く鍛えよ</text>
     </svg>
   );
 }
 
 // ── Step 1: Welcome ───────────────────────────────────────────
 function WelcomeStep({ onNext }) {
+  const { theme } = useTheme();
+  const primary = theme?.colors.primary || '#C0392B';
+  const accent  = theme?.colors.accent  || '#F5CBA7';
+  const glow    = theme?.colors.glow    || 'rgba(192,57,43,0.7)';
+
   return (
     <motion.div
       key="welcome"
@@ -111,18 +126,12 @@ function WelcomeStep({ onNext }) {
       transition={{ duration: 0.45 }}
     >
       <motion.div
-        className={styles.logoWrap}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.1 }}
+        transition={{ duration: 0.8, delay: 0.1 }}
       >
-        <DSLogoSVG />
+        <KimetsuNoCardioLogo primary={primary} accent={accent} glow={glow} />
       </motion.div>
-
-      <h1 className={styles.title}>
-        <span className={styles.titleMain}>Kimetsu no Cardio</span>
-        <span className={styles.titleSub}>鬼滅の有酸素運動</span>
-      </h1>
 
       <p className={styles.tagline}>
         Train like a Demon Slayer. Track every step, every breath.
@@ -338,7 +347,10 @@ export default function Onboarding() {
   };
 
   return (
-    <div className={styles.page} style={{ background: theme?.colors.bg || '#0A0A0A' }}>
+    <div className={styles.page} style={{ background: theme?.colors.bg || '#03010a' }}>
+      {/* Infinity Castle background */}
+      <InfinityCastle />
+
       {/* Ambient kanji */}
       <div className={styles.kanjiWall}>
         {['滅', '鬼', '呼', '吸', '刀', '剣', '士', '柱', '炎', '水', '風', '雷', '岩', '霞', '蟲', '花', '音', '日', '月', '恋', '蛇', '獣'].map((k, i) => (

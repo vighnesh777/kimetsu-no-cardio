@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { fetchAllFitnessData } from '../services/googleFit';
 import StatsCard from '../components/StatsCard/StatsCard';
 import FormProgression from '../components/FormProgression/FormProgression';
+import RankBadge from '../components/RankBadge/RankBadge';
 import DSIcon from '../components/DSIcon/DSIcon';
-import { fetchWorkouts as fetchSheetWorkouts } from '../services/googleSheets';
+import { useProgressionContext as useProgression } from '../contexts/ProgressionContext';
 import styles from './Dashboard.module.css';
 
 const STEP_GOAL = 10000;
@@ -39,21 +40,19 @@ function MotivationalBanner({ theme }) {
 }
 
 export default function Dashboard() {
-  const { theme } = useTheme();
+  const { theme, styleId } = useTheme();
   const { accessToken, user, isApiConnected } = useAuth();
   const navigate = useNavigate();
-  const [data,          setData]         = useState(null);
-  const [loading,       setLoading]       = useState(true);
-  const [lastUpdated,   setLastUpdated]   = useState(null);
-  const [totalWorkouts, setTotalWorkouts] = useState(0);
+  const [data,        setData]      = useState(null);
+  const [loading,     setLoading]   = useState(true);
+  const [lastUpdated, setLastUpdated] = useState(null);
 
-  // Fetch workout count from Sheets for form progression
-  useEffect(() => {
-    if (!accessToken) return;
-    fetchSheetWorkouts(accessToken)
-      .then(rows => setTotalWorkouts(rows.length))
-      .catch(() => {});
-  }, [accessToken]);
+  const {
+    currentRank, rankProgress, streakCount,
+    forms, totalForms, unlockedForms,
+    workouts, dailyMissions, completedToday,
+    autoCheckMissions,
+  } = useProgression();
 
   useEffect(() => {
     if (!accessToken) {
@@ -64,10 +63,14 @@ export default function Dashboard() {
 
     setLoading(true);
     fetchAllFitnessData(accessToken)
-      .then(d => { setData(d); setLastUpdated(new Date()); })
+      .then(d => {
+        setData(d);
+        setLastUpdated(new Date());
+        autoCheckMissions(d);
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [accessToken]);
+  }, [accessToken]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const primary = theme?.colors.primary || '#FF4500';
   const textMuted = theme?.colors.textMuted || '#FF8C00';
@@ -132,12 +135,12 @@ export default function Dashboard() {
       </motion.div>
 
       <div className={styles.statsGrid}>
-        <StatsCard iconName="steps"       label="Steps Today"      value={data?.steps?.toLocaleString()} progress={stepProgress}   goal={`${STEP_GOAL.toLocaleString()} steps`} goalLabel="Daily goal" delay={0}    loading={loading} />
-        <StatsCard iconName="flame"       label="Calories Burned"  value={data?.calories}  unit="kcal" progress={calProgress}   goal={`${CALORIE_GOAL} kcal`}   goalLabel="Daily goal" delay={0.05} loading={loading} />
-        <StatsCard iconName="distance"    label="Distance"         value={data?.distance}  unit="km"  delay={0.1}  loading={loading} />
-        <StatsCard iconName="heartRate"   label="Heart Rate"       value={data?.heartRate} unit="bpm" delay={0.15} loading={loading} />
-        <StatsCard iconName="sleep"       label="Sleep"            value={data?.sleep}     unit="hrs" progress={sleepProgress}  goal={`${SLEEP_GOAL} hrs`}      goalLabel="Sleep goal"  delay={0.2}  loading={loading} />
-        <StatsCard iconName="activeMinutes" label="Active Minutes" value={data?.activeMinutes} unit="min" progress={activeProgress} goal={`${ACTIVE_GOAL} min`} goalLabel="Daily goal" delay={0.25} loading={loading} />
+        <StatsCard iconName="steps"         label="Steps Today"      value={data?.steps?.toLocaleString()} progress={stepProgress}   goal={`${STEP_GOAL.toLocaleString()} steps`} goalLabel="Daily goal" delay={0}    loading={loading} />
+        <StatsCard iconName="flame"         label="Calories Burned"  value={data?.calories}  unit="kcal" progress={calProgress}   goal={`${CALORIE_GOAL} kcal`}   goalLabel="Daily goal" delay={0.05} loading={loading} />
+        <StatsCard iconName="distance"      label="Distance"         value={data?.distance}  unit="km"  delay={0.1}  loading={loading} />
+        <StatsCard iconName="heartRate"     label="Heart Rate"       value={data?.heartRate} unit="bpm" delay={0.15} loading={loading} />
+        <StatsCard iconName="sleep"         label="Sleep"            value={data?.sleep}     unit="hrs" progress={sleepProgress}  goal={`${SLEEP_GOAL} hrs`}      goalLabel="Sleep goal"  delay={0.2}  loading={loading} />
+        <StatsCard iconName="activeMinutes" label="Active Minutes"   value={data?.activeMinutes} unit="min" progress={activeProgress} goal={`${ACTIVE_GOAL} min`} goalLabel="Daily goal" delay={0.25} loading={loading} />
       </div>
 
       <motion.div className={styles.chartCard} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.5 }}>
@@ -168,9 +171,46 @@ export default function Dashboard() {
         </div>
       </motion.div>
 
-      <FormProgression totalWorkouts={totalWorkouts} />
+      {/* Corps Rank */}
+      <RankBadge rank={currentRank} rankProgress={rankProgress} streakCount={streakCount} />
 
-      <motion.div className={styles.styleInfoCard} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.5 }}>
+      {/* Breathing Form Progression */}
+      <FormProgression forms={forms} unlockedForms={unlockedForms} totalForms={totalForms} />
+
+      {/* Daily Missions Preview */}
+      <motion.div
+        className={styles.missionsPreview}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.5 }}
+      >
+        <div className={styles.missionsPreviewHeader}>
+          <h2 className={styles.missionsPreviewTitle}>Today's Crow Dispatch</h2>
+          <Link to="/missions" className={styles.missionsPreviewLink} style={{ color: primary }}>
+            View all →
+          </Link>
+        </div>
+        <div className={styles.missionsPreviewList}>
+          {dailyMissions.map(m => {
+            const done = completedToday.has(m.id);
+            return (
+              <div
+                key={m.id}
+                className={`${styles.missionPreviewItem} ${done ? styles.missionDone : ''}`}
+                style={done ? { borderColor: primary } : {}}
+              >
+                <span className={styles.missionPreviewDot} style={{ background: done ? primary : undefined }} />
+                <span className={styles.missionPreviewName} style={done ? { color: primary } : {}}>
+                  {m.title}
+                </span>
+                <span className={styles.missionPreviewPts} style={{ color: primary }}>+{m.points}pts</span>
+              </div>
+            );
+          })}
+        </div>
+      </motion.div>
+
+      <motion.div className={styles.styleInfoCard} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.5 }}>
         <div className={styles.styleInfoLeft}>
           <DSIcon name="style" size={36} color={primary} />
           <div>

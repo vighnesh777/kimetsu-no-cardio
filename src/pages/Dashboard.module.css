@@ -260,3 +260,81 @@
 .changeStyleLink:hover {
   opacity: 0.7;
 }
+
+/* Missions preview */
+.missionsPreview {
+  background: var(--card-gradient);
+  border: 1px solid var(--color-primary);
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--border-glow);
+}
+
+.missionsPreviewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.missionsPreviewTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.missionsPreviewLink {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.missionsPreviewLink:hover { opacity: 0.7; }
+
+.missionsPreviewList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.missionPreviewItem {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.02);
+  transition: border-color 0.2s;
+}
+
+.missionDone {
+  background: rgba(255,255,255,0.04);
+}
+
+.missionPreviewDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  flex-shrink: 0;
+}
+
+.missionPreviewName {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.6);
+  flex: 1;
+}
+
+.missionDone .missionPreviewName {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.missionPreviewPts {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}

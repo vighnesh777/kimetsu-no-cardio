@@ -8,18 +8,42 @@
 const icons = {
   // ── Navigation ──────────────────────────────────────────────
   katana: (
-    // Nichirin sword — diagonal blade
-    <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
-      {/* Blade */}
-      <line x1="3" y1="21" x2="18" y2="6" stroke="currentColor" strokeWidth="1.8"/>
-      {/* Tip */}
-      <polyline points="15,3 21,3 21,9" stroke="currentColor" strokeWidth="1.8"/>
-      <line x1="21" y1="3" x2="18" y2="6" stroke="currentColor" strokeWidth="1.8"/>
-      {/* Guard (tsuba) */}
-      <ellipse cx="7" cy="17" rx="2.5" ry="1.2" transform="rotate(-45 7 17)"
-        stroke="currentColor" strokeWidth="1.5" fill="none"/>
-      {/* Handle */}
-      <line x1="4" y1="20" x2="2" y2="22" stroke="currentColor" strokeWidth="2.2"/>
+    // Nichirin sword — horizontal, anatomically accurate to Demon Slayer
+    // Blade curves slightly upward (sori), tsuba is circular, tsuka has diamond wrap
+    <svg viewBox="0 0 96 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      {/* === BLADE === */}
+      {/* Spine (mune) — thicker top edge */}
+      <path d="M2 11.5 Q30 10.5 58 11 L64 12" stroke="currentColor" strokeWidth="2.2"/>
+      {/* Edge (ha) — razor-thin bottom, tapers to tip */}
+      <path d="M2 12.5 Q30 12 58 11.5 L64 12" stroke="currentColor" strokeWidth="0.8" opacity="0.6"/>
+      {/* Fuller groove (hi) — blood groove running along blade */}
+      <path d="M8 11.8 Q35 11.2 55 11.6" stroke="currentColor" strokeWidth="0.5" opacity="0.35" strokeDasharray="2 1.5"/>
+      {/* Blade tip (kissaki) — triangular point */}
+      <path d="M58 11 L66 11.5 L58 12" fill="currentColor" opacity="0.9"/>
+      {/* Blade glow / reflection line */}
+      <path d="M12 11.3 Q38 10.8 52 11.1" stroke="currentColor" strokeWidth="0.4" opacity="0.22"/>
+
+      {/* === TSUBA (circular guard) === */}
+      {/* Outer ring */}
+      <circle cx="69" cy="12" r="5.5" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+      {/* Inner decoration — four-petal pattern (kiku/chrysanthemum motif) */}
+      <circle cx="69" cy="12" r="2.2" stroke="currentColor" strokeWidth="1" fill="none" opacity="0.7"/>
+      <line x1="69" y1="7" x2="69" y2="17" stroke="currentColor" strokeWidth="0.7" opacity="0.45"/>
+      <line x1="64" y1="12" x2="74" y2="12" stroke="currentColor" strokeWidth="0.7" opacity="0.45"/>
+
+      {/* === TSUKA (handle) with diamond cord wrap === */}
+      {/* Handle body */}
+      <rect x="75" y="9.5" width="17" height="5" rx="1.5" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+      {/* Diamond wrap (hishigami) — alternating crosses */}
+      <line x1="77" y1="9.5" x2="79" y2="14.5" stroke="currentColor" strokeWidth="0.9" opacity="0.6"/>
+      <line x1="79" y1="9.5" x2="77" y2="14.5" stroke="currentColor" strokeWidth="0.9" opacity="0.6"/>
+      <line x1="81" y1="9.5" x2="83" y2="14.5" stroke="currentColor" strokeWidth="0.9" opacity="0.6"/>
+      <line x1="83" y1="9.5" x2="81" y2="14.5" stroke="currentColor" strokeWidth="0.9" opacity="0.6"/>
+      <line x1="85" y1="9.5" x2="87" y2="14.5" stroke="currentColor" strokeWidth="0.9" opacity="0.6"/>
+      <line x1="87" y1="9.5" x2="85" y2="14.5" stroke="currentColor" strokeWidth="0.9" opacity="0.6"/>
+      {/* Kashira (pommel cap) */}
+      <ellipse cx="93" cy="12" rx="2.5" ry="3.5" stroke="currentColor" strokeWidth="1.3" fill="none"/>
+      <ellipse cx="93" cy="12" rx="1.2" ry="1.8" fill="currentColor" opacity="0.4"/>
     </svg>
   ),
 
@@ -224,6 +248,242 @@ const icons = {
     </svg>
   ),
 
+  // ── Gamification & Stats icons (DS-themed) ───────────────────
+
+  // Kasugai Crow — anime-style, clean Japanese illustration
+  crow: (
+    <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      {/* Body */}
+      <ellipse cx="12" cy="14" rx="5.5" ry="4.5" fill="currentColor" opacity="0.15"
+        stroke="currentColor" strokeWidth="1.5"/>
+      {/* Head */}
+      <circle cx="12" cy="8.5" r="3.2" fill="currentColor" opacity="0.15"
+        stroke="currentColor" strokeWidth="1.5"/>
+      {/* Beak */}
+      <path d="M12 8 L14.2 9.2 L12 10.2Z" fill="currentColor"/>
+      {/* Left wing outstretched */}
+      <path d="M6.5 13 Q3 11 2 8 Q5 9.5 6.5 13Z" stroke="currentColor" strokeWidth="1.4" fill="currentColor" opacity="0.2"/>
+      {/* Right wing outstretched */}
+      <path d="M17.5 13 Q21 11 22 8 Q19 9.5 17.5 13Z" stroke="currentColor" strokeWidth="1.4" fill="currentColor" opacity="0.2"/>
+      {/* Eye */}
+      <circle cx="13.2" cy="8" r="0.9" fill="currentColor"/>
+      {/* Legs */}
+      <line x1="10.5" y1="18.5" x2="9.5" y2="21.5" stroke="currentColor" strokeWidth="1.3"/>
+      <line x1="13.5" y1="18.5" x2="14.5" y2="21.5" stroke="currentColor" strokeWidth="1.3"/>
+      {/* Talons */}
+      <line x1="9.5" y1="21.5" x2="8" y2="22" stroke="currentColor" strokeWidth="1.1"/>
+      <line x1="9.5" y1="21.5" x2="10.5" y2="22.5" stroke="currentColor" strokeWidth="1.1"/>
+      <line x1="14.5" y1="21.5" x2="16" y2="22" stroke="currentColor" strokeWidth="1.1"/>
+      <line x1="14.5" y1="21.5" x2="13.5" y2="22.5" stroke="currentColor" strokeWidth="1.1"/>
+      {/* Mission scroll tied to leg */}
+      <rect x="8" y="19.5" width="3.5" height="2.2" rx="0.5" stroke="currentColor" strokeWidth="1" opacity="0.7"/>
+    </svg>
+  ),
+
+  // Mission scroll — traditional Japanese emaki/makimono
+  scroll: (
+    <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      {/* Scroll body */}
+      <rect x="4" y="5" width="16" height="14" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+      {/* Top roller */}
+      <ellipse cx="12" cy="5" rx="8" ry="1.8" stroke="currentColor" strokeWidth="1.4"/>
+      {/* Bottom roller */}
+      <ellipse cx="12" cy="19" rx="8" ry="1.8" stroke="currentColor" strokeWidth="1.4"/>
+      {/* Text lines (kanji-style) */}
+      <line x1="8" y1="9" x2="16" y2="9" stroke="currentColor" strokeWidth="1.2" opacity="0.7"/>
+      <line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" strokeWidth="1.2" opacity="0.7"/>
+      <line x1="8" y1="15" x2="12" y2="15" stroke="currentColor" strokeWidth="1.2" opacity="0.7"/>
+      {/* Seal dot */}
+      <circle cx="15" cy="15" r="1.2" stroke="currentColor" strokeWidth="1.2" opacity="0.6"/>
+    </svg>
+  ),
+
+  // Geta (traditional wooden sandal) — for steps
+  steps: (
+    <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      {/* Sandal platform (thick wooden base) */}
+      <rect x="3" y="11" width="18" height="4" rx="2" stroke="currentColor" strokeWidth="1.6"/>
+      {/* Two wooden teeth/supports underneath */}
+      <rect x="6" y="15" width="3" height="4" rx="0.8" stroke="currentColor" strokeWidth="1.3"/>
+      <rect x="15" y="15" width="3" height="4" rx="0.8" stroke="currentColor" strokeWidth="1.3"/>
+      {/* Thong strap (hanao) */}
+      <path d="M9 11 Q12 7 15 11" stroke="currentColor" strokeWidth="1.6" fill="none"/>
+      <line x1="12" y1="7.5" x2="12" y2="11" stroke="currentColor" strokeWidth="1.4"/>
+    </svg>
+  ),
+
+  // Hibachi/brazier — fire in a clay bowl, for calories
+  flame: (
+    <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      {/* Clay bowl */}
+      <path d="M5 17 Q6 21 12 21 Q18 21 19 17 Z" stroke="currentColor" strokeWidth="1.5"/>
+      {/* Bowl rim */}
+      <ellipse cx="12" cy="17" rx="7" ry="2" stroke="currentColor" strokeWidth="1.4"/>
+      {/* Central flame */}
+      <path d="M12 15 Q10 12 12 9 Q14 12 12 15Z" stroke="currentColor" strokeWidth="1.4"/>
+      {/* Left flame */}
+      <path d="M9.5 15 Q8 12.5 9.5 10.5 Q11 13 9.5 15Z" stroke="currentColor" strokeWidth="1.2" opacity="0.7"/>
+      {/* Right flame */}
+      <path d="M14.5 15 Q16 12.5 14.5 10.5 Q13 13 14.5 15Z" stroke="currentColor" strokeWidth="1.2" opacity="0.7"/>
+    </svg>
+  ),
+
+  // Mountain path — for distance
+  distance: (
+    <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      {/* Mountain peaks */}
+      <path d="M2 20 L8 8 L14 20" stroke="currentColor" strokeWidth="1.5"/>
+      <path d="M10 20 L16 10 L22 20" stroke="currentColor" strokeWidth="1.5"/>
+      {/* Winding path at base */}
+      <path d="M2 20 Q7 18 12 20 Q17 22 22 20" stroke="currentColor" strokeWidth="1.3" opacity="0.7"/>
+    </svg>
+  ),
+
+  // Heartbeat with brush-stroke waves — for heart rate
+  heartRate: (
+    <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      {/* Flat line left */}
+      <line x1="2" y1="12" x2="6" y2="12" stroke="currentColor" strokeWidth="1.7"/>
+      {/* Spike up */}
+      <polyline points="6,12 8,5 10,17 12,9 14,15 16,12" stroke="currentColor" strokeWidth="1.7"/>
+      {/* Flat line right */}
+      <line x1="16" y1="12" x2="22" y2="12" stroke="currentColor" strokeWidth="1.7"/>
+    </svg>
+  ),
+
+  // Crescent moon with wave clouds — for sleep
+  sleep: (
+    <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      {/* Crescent moon */}
+      <path d="M21 12.5 A9 9 0 1 1 12 3 A7 7 0 0 0 21 12.5Z"
+        stroke="currentColor" strokeWidth="1.6"/>
+      {/* Stars */}
+      <line x1="19" y1="6" x2="19" y2="8" stroke="currentColor" strokeWidth="1.3"/>
+      <line x1="18" y1="7" x2="20" y2="7" stroke="currentColor" strokeWidth="1.3"/>
+      <line x1="21" y1="14" x2="21" y2="15.5" stroke="currentColor" strokeWidth="1.2"/>
+      <line x1="20.25" y1="14.75" x2="21.75" y2="14.75" stroke="currentColor" strokeWidth="1.2"/>
+    </svg>
+  ),
+
+  // Sword slash — dynamic Nichirin slash mark, for active minutes
+  activeMinutes: (
+    <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      {/* Main slash arc */}
+      <path d="M4 20 Q8 14 12 12 Q16 10 20 4" stroke="currentColor" strokeWidth="2" fill="none"/>
+      {/* Speed lines */}
+      <line x1="3" y1="15" x2="7" y2="13" stroke="currentColor" strokeWidth="1.2" opacity="0.6"/>
+      <line x1="5" y1="19" x2="9" y2="17" stroke="currentColor" strokeWidth="1.2" opacity="0.6"/>
+      {/* Blade glint at tip */}
+      <circle cx="20" cy="4" r="1.5" stroke="currentColor" strokeWidth="1.3"/>
+      {/* Impact marks */}
+      <line x1="16" y1="18" x2="18" y2="21" stroke="currentColor" strokeWidth="1.2" opacity="0.5"/>
+      <line x1="19" y1="16" x2="22" y2="18" stroke="currentColor" strokeWidth="1.2" opacity="0.5"/>
+    </svg>
+  ),
+
+  // Rising sun with rays — for best day / highlights
+  risSun: (
+    <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="13" r="4.5" stroke="currentColor" strokeWidth="1.6"/>
+      {/* Horizon line */}
+      <line x1="2" y1="17" x2="22" y2="17" stroke="currentColor" strokeWidth="1.5"/>
+      {/* Rays above horizon */}
+      <line x1="12" y1="3" x2="12" y2="6" stroke="currentColor" strokeWidth="1.5"/>
+      <line x1="19" y1="6" x2="17.2" y2="7.8" stroke="currentColor" strokeWidth="1.5"/>
+      <line x1="5" y1="6" x2="6.8" y2="7.8" stroke="currentColor" strokeWidth="1.5"/>
+      <line x1="22" y1="13" x2="19" y2="13" stroke="currentColor" strokeWidth="1.5"/>
+      <line x1="2" y1="13" x2="5" y2="13" stroke="currentColor" strokeWidth="1.5"/>
+    </svg>
+  ),
+
+  // Abacus / balance — for averages
+  average: (
+    <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      {/* Frame */}
+      <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+      {/* Horizontal rails */}
+      <line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" strokeWidth="1.3"/>
+      <line x1="3" y1="15" x2="21" y2="15" stroke="currentColor" strokeWidth="1.3"/>
+      {/* Beads on top rail */}
+      <circle cx="7" cy="9" r="2" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+      <circle cx="12" cy="9" r="2" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+      {/* Beads on middle rail */}
+      <circle cx="9" cy="15" r="2" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+      <circle cx="17" cy="15" r="2" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+    </svg>
+  ),
+
+  // Breath mark — circular breathing form, for style/breathing
+  breath: (
+    <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.4" strokeDasharray="2 2"/>
+      <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="1.6"/>
+      {/* Petals/form lines */}
+      <line x1="12" y1="3" x2="12" y2="7" stroke="currentColor" strokeWidth="1.3"/>
+      <line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" strokeWidth="1.3"/>
+      <line x1="3" y1="12" x2="7" y2="12" stroke="currentColor" strokeWidth="1.3"/>
+      <line x1="17" y1="12" x2="21" y2="12" stroke="currentColor" strokeWidth="1.3"/>
+      <line x1="5.6" y1="5.6" x2="8.4" y2="8.4" stroke="currentColor" strokeWidth="1.3"/>
+      <line x1="15.6" y1="15.6" x2="18.4" y2="18.4" stroke="currentColor" strokeWidth="1.3"/>
+      <line x1="18.4" y1="5.6" x2="15.6" y2="8.4" stroke="currentColor" strokeWidth="1.3"/>
+      <line x1="8.4" y1="15.6" x2="5.6" y2="18.4" stroke="currentColor" strokeWidth="1.3"/>
+    </svg>
+  ),
+
+  // Corps mark / wisteria seal — for achievements/rank
+  corpsSeal: (
+    <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
+      <circle cx="12" cy="12" r="7" stroke="currentColor" strokeWidth="1" opacity="0.5"/>
+      {/* 6-pointed star (Ougon Kami pattern) */}
+      <polygon points="12,3 13.8,8.6 19.7,8.6 14.9,12 16.7,17.6 12,14.2 7.3,17.6 9.1,12 4.3,8.6 10.2,8.6"
+        stroke="currentColor" strokeWidth="1.3" fill="none"/>
+    </svg>
+  ),
+
+  // Wisteria flower — for missions / achievements category
+  wisteria: (
+    <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="12" y1="2" x2="12" y2="8" stroke="currentColor" strokeWidth="1.5"/>
+      <line x1="12" y1="6" x2="8" y2="9" stroke="currentColor" strokeWidth="1.3"/>
+      <line x1="12" y1="6" x2="16" y2="9" stroke="currentColor" strokeWidth="1.3"/>
+      {/* Flower clusters */}
+      <circle cx="7" cy="12" r="2.5" stroke="currentColor" strokeWidth="1.4"/>
+      <circle cx="12" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.4"/>
+      <circle cx="17" cy="12" r="2.5" stroke="currentColor" strokeWidth="1.4"/>
+      <circle cx="9" cy="17" r="2.5" stroke="currentColor" strokeWidth="1.4"/>
+      <circle cx="15" cy="17" r="2.5" stroke="currentColor" strokeWidth="1.4"/>
+      <circle cx="12" cy="21" r="2" stroke="currentColor" strokeWidth="1.3"/>
+    </svg>
+  ),
+
+  // Crossed swords — for strength workout
+  swords: (
+    <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="3" y1="21" x2="21" y2="3" stroke="currentColor" strokeWidth="1.7"/>
+      <line x1="21" y1="21" x2="3" y2="3" stroke="currentColor" strokeWidth="1.7"/>
+      {/* Guards */}
+      <line x1="7.5" y1="7.5" x2="4.5" y2="4.5" stroke="currentColor" strokeWidth="1.2" opacity="0.6"/>
+      <line x1="16.5" y1="16.5" x2="19.5" y2="19.5" stroke="currentColor" strokeWidth="1.2" opacity="0.6"/>
+      <ellipse cx="6" cy="18" rx="2.5" ry="1.2" transform="rotate(-45 6 18)"
+        stroke="currentColor" strokeWidth="1.3" fill="none"/>
+      <ellipse cx="18" cy="6" rx="2.5" ry="1.2" transform="rotate(-45 18 6)"
+        stroke="currentColor" strokeWidth="1.3" fill="none"/>
+    </svg>
+  ),
+
+  // Spinning tornado / wind — for cardio/active
+  windSpiral: (
+    <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 12 Q18 8 20 4 Q22 2 20 2 Q16 2 14 6 Q12 10 12 12Z"
+        stroke="currentColor" strokeWidth="1.5"/>
+      <path d="M12 12 Q6 16 4 20 Q2 22 4 22 Q8 22 10 18 Q12 14 12 12Z"
+        stroke="currentColor" strokeWidth="1.5"/>
+      <path d="M12 12 Q16 16 20 18 Q22 20 21 21 Q19 22 16 20 Q13 17 12 12Z"
+        stroke="currentColor" strokeWidth="1.3" opacity="0.7"/>
+    </svg>
+  ),
+
   // ── Breathing Style icons ─────────────────────────────────────
   water: (
     <svg viewBox="0 0 24 24" fill="none" strokeLinecap="round">
@@ -300,9 +560,16 @@ const icons = {
   ),
 };
 
+// Icons with non-square viewBoxes — width is derived from height × aspect ratio
+const WIDE_ICONS = { katana: 96 / 24 }; // viewBox width/height
+
 export default function DSIcon({ name, size = 20, color = 'currentColor', className = '', style = {} }) {
   const icon = icons[name];
   if (!icon) return null;
+
+  const aspect = WIDE_ICONS[name] || 1;
+  const w = size * aspect;
+  const h = size;
 
   return (
     <span
@@ -311,8 +578,8 @@ export default function DSIcon({ name, size = 20, color = 'currentColor', classN
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        width: size,
-        height: size,
+        width: w,
+        height: h,
         color,
         flexShrink: 0,
         ...style,

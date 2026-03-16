@@ -10,6 +10,9 @@ import { fetchWeeklySteps } from '../services/googleFit';
 import { fetchWorkouts } from '../services/googleSheets';
 import { getMusclesFromWorkouts } from '../data/exercises';
 import MuscleSkeleton from '../components/MuscleSkeleton/MuscleSkeleton';
+import StreakCalendar from '../components/StreakCalendar/StreakCalendar';
+import DSIcon from '../components/DSIcon/DSIcon';
+import { useProgressionContext } from '../contexts/ProgressionContext';
 import styles from './Stats.module.css';
 
 const DEMO_WEEKLY = [
@@ -31,12 +34,14 @@ const RADAR_DATA = [
   { stat: 'Consistency', value: 70 },
 ];
 
-function Highlight({ label, value, unit, icon, delay }) {
+function Highlight({ label, value, unit, iconName, delay }) {
+  const { theme } = useTheme();
+  const primary = theme?.colors.primary || '#FF4500';
   return (
     <motion.div className={styles.highlight}
       initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
       transition={{ delay, duration: 0.4 }}>
-      <span className={styles.highlightIcon}>{icon}</span>
+      <DSIcon name={iconName} size={28} color={primary} className={styles.highlightIcon} />
       <div className={styles.highlightInfo}>
         <span className={styles.highlightValue}>{value}<span className={styles.highlightUnit}>{unit}</span></span>
         <span className={styles.highlightLabel}>{label}</span>
@@ -48,8 +53,11 @@ function Highlight({ label, value, unit, icon, delay }) {
 export default function Stats() {
   const { theme } = useTheme();
   const { accessToken } = useAuth();
+  // workouts from progression context includes in-memory Hevy entries not yet committed to Sheets
+  const { workouts: hevyLiveWorkouts } = useProgressionContext();
   const [weeklyData, setWeeklyData] = useState(DEMO_WEEKLY);
   const [allTimeMuscles, setAllTimeMuscles] = useState({});
+  const [allWorkouts, setAllWorkouts] = useState([]);
   const todayStr = new Date().toLocaleDateString();
   const [todayMuscles, setTodayMuscles] = useState({});
 
@@ -61,6 +69,7 @@ export default function Stats() {
   useEffect(() => {
     if (!accessToken) return;
     fetchWorkouts(accessToken).then(workouts => {
+      setAllWorkouts(workouts);
       setAllTimeMuscles(getMusclesFromWorkouts(workouts));
       setTodayMuscles(getMusclesFromWorkouts(workouts.filter(w => w.date === todayStr)));
     }).catch(console.error);
@@ -93,10 +102,10 @@ export default function Stats() {
       </motion.div>
 
       <div className={styles.highlights}>
-        <Highlight icon="👟" label="Weekly Steps" value={totalSteps.toLocaleString()} unit="" delay={0} />
-        <Highlight icon="📊" label="Daily Average" value={avgSteps.toLocaleString()} unit=" steps" delay={0.05} />
-        <Highlight icon="🏆" label="Best Day" value={bestDay?.day} unit="" delay={0.1} />
-        <Highlight icon="🔥" label="Weekly Calories" value={totalCalories.toLocaleString()} unit=" kcal" delay={0.15} />
+        <Highlight iconName="steps"   label="Weekly Steps"   value={totalSteps.toLocaleString()} unit=""       delay={0} />
+        <Highlight iconName="average" label="Daily Average"  value={avgSteps.toLocaleString()}   unit=" steps" delay={0.05} />
+        <Highlight iconName="risSun"  label="Best Day"       value={bestDay?.day}                unit=""       delay={0.1} />
+        <Highlight iconName="flame"   label="Weekly Calories" value={totalCalories.toLocaleString()} unit=" kcal" delay={0.15} />
       </div>
 
       <motion.div className={styles.chartCard} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
@@ -165,6 +174,9 @@ export default function Stats() {
           </AreaChart>
         </ResponsiveContainer>
       </motion.div>
+
+      {/* Streak Calendar */}
+      <StreakCalendar workouts={allWorkouts} hevyWorkouts={hevyLiveWorkouts} />
 
       {/* Muscle Activity */}
       <div className={styles.twoCol}>

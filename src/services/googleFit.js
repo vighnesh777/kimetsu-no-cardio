@@ -21,54 +21,76 @@ function midnightNDaysAgoMs(n) {
   return d.getTime();
 }
 
-const DATA_TYPES = {
-  steps:         'com.google.step_count.delta',
-  calories:      'com.google.calories.expended',
-  distance:      'com.google.distance.delta',
-  heartRate:     'com.google.heart_rate.bpm',
-  sleep:         'com.google.sleep.segment',
-  activeMinutes: 'com.google.active_minutes',
+// Google's derived sources — these are what the Google Fit app itself uses
+// estimated_steps is the exact source Google Fit UI shows for daily steps,
+// including manual entries, sensor data, and third-party apps.
+const MERGE_SOURCES = {
+  steps:         'derived:com.google.step_count.delta:com.google.android.gms:estimated_steps',
+  calories:      'derived:com.google.calories.expended:com.google.android.gms:merge_calories_expended',
+  distance:      'derived:com.google.distance.delta:com.google.android.gms:merge_distance_delta',
+  heartRate:     'derived:com.google.heart_rate.bpm:com.google.android.gms:merge_heart_rate_bpm',
+  activeMinutes: 'derived:com.google.active_minutes:com.google.android.gms:merge_active_minutes',
 };
 
-// Fetch aggregate data aligned to calendar days (startMs → now)
-async function aggregateData(token, dataTypeName, startMs, endMs = Date.now(), bucketMs = 86400000) {
+const DATA_TYPES = {
+  sleep: 'com.google.sleep.segment', // no standard merge source for sleep
+};
+
+// Fetch aggregate using a specific data source ID (most reliable for merged data)
+async function aggregateBySource(token, dataSourceId, startMs, endMs = Date.now(), bucketMs = 86400000) {
+  const body = {
+    aggregateBy: [{ dataSourceId }],
+    bucketByTime: { durationMillis: bucketMs },
+    startTimeMillis: startMs,
+    endTimeMillis: endMs,
+  };
+  const res = await fetch(`${FIT_BASE}/dataset:aggregate`, {
+    method: 'POST',
+    headers: headers(token),
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`Google Fit error: ${res.status} for ${dataSourceId}`);
+  return res.json();
+}
+
+// Fallback: aggregate by data type name when no merge source is available
+async function aggregateByType(token, dataTypeName, startMs, endMs = Date.now(), bucketMs = 86400000) {
   const body = {
     aggregateBy: [{ dataTypeName }],
     bucketByTime: { durationMillis: bucketMs },
     startTimeMillis: startMs,
     endTimeMillis: endMs,
   };
-
   const res = await fetch(`${FIT_BASE}/dataset:aggregate`, {
     method: 'POST',
     headers: headers(token),
     body: JSON.stringify(body),
   });
-
   if (!res.ok) throw new Error(`Google Fit error: ${res.status}`);
   return res.json();
 }
 
+// Flatten ALL datasets in every bucket — captures manual entries and
+// automatic tracking which may come from different data sources (dataset indices).
+const allPoints = (data) =>
+  (data.bucket || []).flatMap(b => (b.dataset || []).flatMap(ds => ds.point || []));
+
 export async function fetchTodaySteps(token) {
   try {
-    // Start at midnight so we match exactly what Google Fit shows on the phone
-    const data = await aggregateData(token, DATA_TYPES.steps, todayMidnightMs());
-    const points = (data.bucket || []).flatMap(b => b.dataset?.[0]?.point || []);
-    return points.reduce((sum, p) => sum + (p.value?.[0]?.intVal || 0), 0);
+    const data = await aggregateBySource(token, MERGE_SOURCES.steps, todayMidnightMs());
+    return allPoints(data).reduce((sum, p) => sum + (p.value?.[0]?.intVal || 0), 0);
   } catch { return null; }
 }
 
 export async function fetchWeeklySteps(token) {
   try {
-    // 7 calendar days: midnight 6 days ago → now, one bucket per day
-    const data = await aggregateData(token, DATA_TYPES.steps, midnightNDaysAgoMs(6));
+    const data = await aggregateBySource(token, MERGE_SOURCES.steps, midnightNDaysAgoMs(6));
     return (data.bucket || []).map(b => {
-      // Use the bucket's own start time for the day label
-      const day = new Date(parseInt(b.startTimeMillis))
+      const day   = new Date(parseInt(b.startTimeMillis))
         .toLocaleDateString('en', { weekday: 'short' });
-      const steps = (b.dataset?.[0]?.point || []).reduce(
-        (s, p) => s + (p.value?.[0]?.intVal || 0), 0
-      );
+      const steps = (b.dataset || [])
+        .flatMap(ds => ds.point || [])
+        .reduce((s, p) => s + (p.value?.[0]?.intVal || 0), 0);
       return { day, steps };
     });
   } catch { return []; }
@@ -76,45 +98,40 @@ export async function fetchWeeklySteps(token) {
 
 export async function fetchTodayCalories(token) {
   try {
-    const data = await aggregateData(token, DATA_TYPES.calories, todayMidnightMs());
-    const points = (data.bucket || []).flatMap(b => b.dataset?.[0]?.point || []);
-    return Math.round(points.reduce((s, p) => s + (p.value?.[0]?.fpVal || 0), 0));
+    const data = await aggregateBySource(token, MERGE_SOURCES.calories, todayMidnightMs());
+    return Math.round(allPoints(data).reduce((s, p) => s + (p.value?.[0]?.fpVal || 0), 0));
   } catch { return null; }
 }
 
 export async function fetchTodayDistance(token) {
   try {
-    const data = await aggregateData(token, DATA_TYPES.distance, todayMidnightMs());
-    const points = (data.bucket || []).flatMap(b => b.dataset?.[0]?.point || []);
-    const meters = points.reduce((s, p) => s + (p.value?.[0]?.fpVal || 0), 0);
+    const data = await aggregateBySource(token, MERGE_SOURCES.distance, todayMidnightMs());
+    const meters = allPoints(data).reduce((s, p) => s + (p.value?.[0]?.fpVal || 0), 0);
     return (meters / 1000).toFixed(2);
   } catch { return null; }
 }
 
 export async function fetchHeartRate(token) {
   try {
-    // Use 1-hour buckets since midnight for a resting average
-    const data = await aggregateData(token, DATA_TYPES.heartRate, todayMidnightMs(), Date.now(), 3600000);
-    const allPoints = (data.bucket || []).flatMap(b => b.dataset?.[0]?.point || []);
-    if (!allPoints.length) return null;
-    const avg = allPoints.reduce((s, p) => s + (p.value?.[0]?.fpVal || 0), 0) / allPoints.length;
+    const data = await aggregateBySource(token, MERGE_SOURCES.heartRate, todayMidnightMs(), Date.now(), 3600000);
+    const pts = allPoints(data);
+    if (!pts.length) return null;
+    const avg = pts.reduce((s, p) => s + (p.value?.[0]?.fpVal || 0), 0) / pts.length;
     return Math.round(avg);
   } catch { return null; }
 }
 
 export async function fetchSleepLastNight(token) {
   try {
-    // Look back 2 calendar days to catch sleep that started before midnight
-    const data = await aggregateData(token, DATA_TYPES.sleep, midnightNDaysAgoMs(1));
+    // Sleep has no standard merge source — use dataTypeName
+    const data = await aggregateByType(token, DATA_TYPES.sleep, midnightNDaysAgoMs(1));
     let totalSleepMs = 0;
-    for (const bucket of data.bucket || []) {
-      for (const point of bucket.dataset?.[0]?.point || []) {
-        const sleepType = point.value?.[0]?.intVal;
-        if (sleepType >= 1 && sleepType <= 4) {
-          const start = parseInt(point.startTimeNanos) / 1_000_000;
-          const end   = parseInt(point.endTimeNanos)   / 1_000_000;
-          totalSleepMs += end - start;
-        }
+    for (const point of allPoints(data)) {
+      const sleepType = point.value?.[0]?.intVal;
+      if (sleepType >= 1 && sleepType <= 4) {
+        const start = parseInt(point.startTimeNanos) / 1_000_000;
+        const end   = parseInt(point.endTimeNanos)   / 1_000_000;
+        totalSleepMs += end - start;
       }
     }
     return (totalSleepMs / 3600000).toFixed(1);
@@ -123,9 +140,8 @@ export async function fetchSleepLastNight(token) {
 
 export async function fetchActiveMinutes(token) {
   try {
-    const data = await aggregateData(token, DATA_TYPES.activeMinutes, todayMidnightMs());
-    const points = (data.bucket || []).flatMap(b => b.dataset?.[0]?.point || []);
-    return points.reduce((s, p) => s + (p.value?.[0]?.intVal || 0), 0);
+    const data = await aggregateBySource(token, MERGE_SOURCES.activeMinutes, todayMidnightMs());
+    return allPoints(data).reduce((s, p) => s + (p.value?.[0]?.intVal || 0), 0);
   } catch { return null; }
 }
 

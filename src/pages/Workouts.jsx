@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
-import { logWorkout, fetchWorkouts, getSheetUrl } from '../services/googleSheets';
+import { logWorkout, logWorkoutsBatch, fetchWorkouts, getSheetUrl } from '../services/googleSheets';
 import { getHevyKey, fetchHevyWorkouts, hevyToEntry, markAsSynced } from '../services/hevy';
 import { EXERCISES, CATEGORIES, MUSCLE_GROUPS, getMusclesFromWorkouts } from '../data/exercises';
 import MuscleSkeleton from '../components/MuscleSkeleton/MuscleSkeleton';
@@ -272,45 +272,61 @@ export default function Workouts() {
   const todayMuscles   = getMusclesFromWorkouts(workouts.filter(w => w.date === todayStr));
   const allTimeMuscles = getMusclesFromWorkouts(workouts);
 
-  useEffect(() => {
-    if (!accessToken) return;
-    setLoadingHistory(true);
-    fetchWorkouts(accessToken)
-      .then(rows => { setWorkouts(rows); return rows; })
-      .catch(console.error)
-      .finally(() => setLoadingHistory(false));
-  }, [accessToken]);
-
   const showToast = (msg, ok=true) => { setToast({ msg, ok }); setTimeout(() => setToast(null), 3500); };
 
   // ── Hevy sync ────────────────────────────────────────────────
-  const syncHevy = async () => {
+  // knownWorkouts is passed explicitly on initial load to avoid stale closure
+  const syncHevy = async (silent = false, knownWorkouts = null) => {
     const hevyKey = getHevyKey();
     if (!hevyKey) return;
     setHevySyncing(true);
     try {
-      const newWorkouts = await fetchHevyWorkouts(hevyKey);
-      if (!newWorkouts.length) { showToast('Hevy is up to date.'); return; }
+      const { workouts: newWorkouts, templates } = await fetchHevyWorkouts(hevyKey);
+      if (!newWorkouts.length) {
+        if (!silent) showToast('Hevy is up to date.');
+        return;
+      }
 
-      const entries = newWorkouts.map(w => hevyToEntry(w, theme?.name || ''));
-      // Add to local state immediately
-      setWorkouts(prev => [...entries, ...prev]);
+      const entries = newWorkouts.map(w => hevyToEntry(w, theme?.name || '', templates));
 
-      // Sync to Google Sheets if connected
+      // Use explicitly-passed workouts list (avoids stale closure on initial load)
+      // Fall back to current state for manual syncs
+      const sourceWorkouts = knownWorkouts ?? workouts;
+      const existingHevyIds = new Set(sourceWorkouts.map(w => w.hevyId).filter(Boolean));
+      const toWrite = entries.filter(e => !existingHevyIds.has(e.hevyId));
+
+      if (!toWrite.length) {
+        if (!silent) showToast('All Hevy workouts already synced.');
+        markAsSynced(newWorkouts.map(w => w.id));
+        return;
+      }
+
+      // Prepend only the truly new entries to local state
+      setWorkouts(prev => [...toWrite, ...prev]);
+
       if (accessToken) {
-        for (const entry of entries) {
-          await logWorkout(accessToken, entry);
-        }
+        await logWorkoutsBatch(accessToken, toWrite);
       }
 
       markAsSynced(newWorkouts.map(w => w.id));
-      showToast(`Synced ${newWorkouts.length} new Hevy workout${newWorkouts.length > 1 ? 's' : ''}!`);
+      showToast(`Synced ${toWrite.length} new Hevy workout${toWrite.length !== 1 ? 's' : ''}!`);
     } catch (err) {
+      console.error('[Hevy] Sync error:', err);
       showToast(`Hevy sync failed: ${err.message}`, false);
     } finally {
       setHevySyncing(false);
     }
   };
+
+  // Load Sheets history, then auto-sync Hevy for any new workouts
+  useEffect(() => {
+    if (!accessToken) return;
+    setLoadingHistory(true);
+    fetchWorkouts(accessToken)
+      .then(rows => { setWorkouts(rows); syncHevy(true, rows); })
+      .catch(console.error)
+      .finally(() => setLoadingHistory(false));
+  }, [accessToken]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSave = async (formData) => {
     const entry = { ...formData, breathingStyle: theme?.name || styleId || 'Unknown' };
@@ -338,7 +354,7 @@ export default function Workouts() {
 
       {/* Hevy integration card */}
       <motion.div className={styles.hevyCard} initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.05 }}>
-        <HevyConnect onSynced={syncHevy} />
+        <HevyConnect onSynced={syncHevy} syncing={hevySyncing} />
         {hevySyncing && (
           <p className={styles.hevySyncing} style={{ color: primary }}>
             Syncing Hevy workouts…

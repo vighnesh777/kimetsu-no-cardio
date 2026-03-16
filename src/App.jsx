@@ -9,12 +9,16 @@ import Onboarding from './pages/Onboarding';
 import Dashboard from './pages/Dashboard';
 import Workouts from './pages/Workouts';
 import Stats from './pages/Stats';
+import Achievements from './pages/Achievements';
+import Missions from './pages/Missions';
+import AchievementToast from './components/AchievementToast/AchievementToast';
+import { ProgressionProvider, useProgressionContext } from './contexts/ProgressionContext';
 import './index.css';
 
 function AppRoutes() {
   const { styleId } = useTheme();
+  const { newAchievements } = useProgressionContext();
 
-  // No style means user hasn't picked a character yet → show onboarding
   if (!styleId) {
     return (
       <Routes>
@@ -29,13 +33,16 @@ function AppRoutes() {
       <ParticleCanvas />
       <Navigation />
       <Routes>
-        <Route path="/"            element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard"   element={<Dashboard />} />
-        <Route path="/workouts"    element={<Workouts />} />
-        <Route path="/stats"       element={<Stats />} />
-        <Route path="/onboarding"  element={<Onboarding />} />
-        <Route path="*"            element={<Navigate to="/dashboard" replace />} />
+        <Route path="/"              element={<Navigate to="/dashboard" replace />} />
+        <Route path="/dashboard"     element={<Dashboard />} />
+        <Route path="/workouts"      element={<Workouts />} />
+        <Route path="/stats"         element={<Stats />} />
+        <Route path="/missions"      element={<Missions />} />
+        <Route path="/achievements"  element={<Achievements />} />
+        <Route path="/onboarding"    element={<Onboarding />} />
+        <Route path="*"              element={<Navigate to="/dashboard" replace />} />
       </Routes>
+      <AchievementToast newAchievements={newAchievements} />
     </>
   );
 }
@@ -46,7 +53,9 @@ export default function App() {
       <ThemeProvider>
         <AvatarProvider>
           <BrowserRouter basename={import.meta.env.BASE_URL}>
-            <AppRoutes />
+            <ProgressionProvider>
+              <AppRoutes />
+            </ProgressionProvider>
           </BrowserRouter>
         </AvatarProvider>
       </ThemeProvider>

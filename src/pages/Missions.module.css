@@ -1,0 +1,306 @@
+.page {
+  padding: 5.5rem 2rem 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.crowHeader {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background: var(--card-gradient);
+  border: 1px solid var(--color-primary);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: var(--border-glow);
+}
+
+.crowIcon { flex-shrink: 0; }
+
+.crowImg {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+}
+
+.crowText { flex: 1; }
+
+.title {
+  font-family: var(--font-title);
+  font-size: clamp(1.4rem, 4vw, 1.9rem);
+  color: var(--color-primary);
+  margin: 0 0 0.2rem;
+}
+
+.subtitle {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.35);
+  margin: 0 0 0.3rem;
+}
+
+.dateText {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.5);
+  margin: 0;
+}
+
+.completedSummary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.completedNum {
+  font-family: var(--font-mono);
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.completedOf {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.3);
+}
+
+.completedLabel {
+  font-size: 0.62rem;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* All done banner */
+.allDoneBanner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid;
+}
+
+.allDoneIcon { font-size: 1.5rem; }
+
+.allDoneTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0 0 0.15rem;
+}
+
+.allDoneSub {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.4);
+  margin: 0;
+}
+
+/* Section */
+.section { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sectionBadge {
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 0.15rem 0.5rem;
+  border-radius: 100px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Mission card */
+.missionList { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.card {
+  background: var(--card-gradient);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: border-color 0.3s, background 0.3s;
+}
+
+.done { opacity: 0.85; }
+
+.cardTop {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+}
+
+.missionIcon { font-size: 1.4rem; flex-shrink: 0; margin-top: 0.1rem; }
+
+.missionInfo { flex: 1; }
+
+.missionTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 0.1rem;
+}
+
+.missionJp {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.3);
+  margin: 0 0 0.35rem;
+}
+
+.missionDesc {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.5);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.missionPoints {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.ptLabel {
+  font-size: 0.6rem;
+  font-weight: 600;
+  opacity: 0.7;
+  text-transform: uppercase;
+}
+
+.progressRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.progressBar {
+  flex: 1;
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 100px;
+  transition: width 0.6s ease;
+}
+
+.progressText {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  white-space: nowrap;
+}
+
+.completedBadge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+  padding-top: 0.25rem;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  opacity: 0.9;
+}
+
+.completeBtn {
+  border: none;
+  color: #000;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 0.55rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.2s;
+}
+.completeBtn:hover { opacity: 0.85; }
+
+/* Skeletons */
+.skeletons { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.skeleton {
+  height: 110px;
+  border-radius: 14px;
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.04) 0%,
+    rgba(255,255,255,0.08) 50%,
+    rgba(255,255,255,0.04) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Stats card */
+.statsCard {
+  background: var(--card-gradient);
+  border: 1px solid;
+  border-radius: 14px;
+  padding: 1.1rem 1.5rem;
+  box-shadow: var(--border-glow);
+}
+
+.statsTitle {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  margin: 0 0 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statsRow {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.stat { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; }
+
+.statNum {
+  font-family: var(--font-mono);
+  font-size: 1.8rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.statDivider {
+  width: 1px;
+  height: 40px;
+  background: rgba(255,255,255,0.08);
+}
+
+@media (max-width: 600px) {
+  .page { padding: 5rem 1rem 1rem; }
+  .crowHeader { flex-wrap: wrap; }
+  .crowIcon { width: 60px; height: 60px; }
+}

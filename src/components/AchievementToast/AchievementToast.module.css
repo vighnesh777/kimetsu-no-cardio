@@ -1,0 +1,66 @@
+.container {
+  position: fixed;
+  bottom: 2rem;
+  right: 1.5rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  pointer-events: none;
+}
+
+.toast {
+  background: rgba(5, 5, 10, 0.97);
+  border: 1px solid;
+  border-radius: 14px;
+  overflow: hidden;
+  min-width: 260px;
+  max-width: 320px;
+}
+
+.toastInner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+}
+
+.toastLeft { flex-shrink: 0; }
+
+.toastIcon {
+  font-size: 1.6rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 8px currentColor);
+}
+
+.toastText { flex: 1; }
+
+.toastLabel {
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 0.15rem;
+}
+
+.toastName {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+  margin: 0 0 0.1rem;
+}
+
+.toastJp {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.62rem;
+  color: rgba(255,255,255,0.35);
+  margin: 0;
+}
+
+.toastRarity {
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
